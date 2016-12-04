@@ -51,7 +51,7 @@ export default {
       required: true
     },
     svgWidth: {
-      require: true,
+      required: true,
       default: 1
     }
   },
