@@ -83,7 +83,7 @@
       },
       load(){
           function populate() {
-              let lineNum = 10;
+              let lineNum = 20;
               let map = ['lr', 'rl'];
               let lines = [];
               for (let order = 1; order <= lineNum; ++order) {
