@@ -66,13 +66,19 @@ export default {
     TimeTags,
     TimeIndicator
   },
+  props:{
+    secInterScale:{
+      default:3
+    },
+    timeScale:{
+      default:100
+    }
+  },
   data() {
     return {
       lines: [],
       nowTime: 0,
       intervalId: undefined,
-      secInterScale: 3,
-      timeScale: 100,
       leftTags: [],
       rightTags: [],
       preventOrderSet: {},
@@ -81,9 +87,6 @@ export default {
       timeRangeHigh: -1,
       timerState:'stop'
     }
-  },
-  computed: {
-
   },
   mounted() {
     let vm = this;
