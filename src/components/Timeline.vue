@@ -76,7 +76,8 @@ export default {
       leftTags: [],
       rightTags: [],
       preventOrderSet: {},
-      svgWidth: 0
+      svgWidth: 0,
+      svgHeight: 0
     }
   },
   computed: {
@@ -111,7 +112,9 @@ export default {
   },
   methods: {
     handleResize(event) {
-      this.svgWidth = document.getElementById('svg').clientWidth;
+      let svg = document.getElementById('svg');
+      this.svgWidth = svg.clientWidth;
+      this.svgHeight = svg.clientHeight;
     },
     load: function(lines) {
       console.log('lines', lines);
