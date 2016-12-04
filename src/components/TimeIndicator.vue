@@ -1,27 +1,141 @@
-<template>
-    <div>
-        <header-component/>
-        <div>this is template body</div>
-        <other-component/>
-    </div>
-</template>
 <style>
-    body{
-        background-color:#ff0000;
-    }
+.time-indicator {
+  margin-left: 20px;
+}
+
+.horizontal-line {
+  z-index: 5;
+  position: absolute;
+  width: 100%;
+  line-height: 1;
+  border-bottom: 1px dotted #000000;
+  margin-top: 5px;
+}
+
+.horizontal-line:hover {
+  border-bottom: 1px solid #000000;
+}
+
+.horizontal-line:active {
+  border-bottom: 1px solid #ff4081;
+}
+
+.timeline {
+  height: calc(100vh - 288px);
+  overflow-y: scroll;
+  position: relative;
+}
 </style>
+
+<template>
+<div class="horizontal-line drabble" id="horizontal-line" :style="hTimelineStyle()">
+  <span class="time-indicator">{{nowTimeFixed}}</span>
+</div>
+</template>
+
 <script>
-    import HeaderComponent from './components/header.vue'
-    import OtherComponent from './components/other.vue'
-    export default{
-        data(){
-            return{
-                msg:'hello vue'
-            }
-        },
-        components:{
-            'other-component':OtherComponent,
-            HeaderComponent,
-        }
+import Draggable from 'Draggable'
+import config from '../config.js'
+export default {
+  props: {
+    nowTime: {
+      required: true
+    },
+    timeScale: {
+      required: true
+    },
+    secInterScale: {
+      required: true
+    },
+    timerState: {
+      required: true
     }
+  },
+  data() {
+    return {
+      nowTimeCopy: 0,
+      isHolding: false
+    }
+  },
+  computed: {
+    nowTimeFixed() {
+      if (this.nowTime < 0) {
+        let zero = 0;
+        return zero.toFixed(4);
+      } else {
+        return this.nowTime.toFixed(4);
+      }
+    }
+  },
+  mounted() {
+    let vm = this;
+    this.$nextTick(function() {
+      // console.log('parent',vm.$parent.$el);
+      let needResume = false;
+      let draggable = Draggable.create('#horizontal-line', {
+        type: "top",
+        autoScroll: 1,
+        bounds: vm.$parent.$el,
+        onPress(evnet) {
+          // console.log('onPress');
+          if (vm.timerState == 'run') {
+            eventHub.$emit('TL-pauseTimer');
+            needResume = true;
+          }
+          vm.nowTimeCopy = vm.nowTime;
+          vm.isHolding = true;
+        },
+        onRelease(event) {
+          if (needResume) {
+            eventHub.$emit('TL-startTimer');
+            needResume = false;
+          }
+          vm.isHolding = false;
+        },
+        onDrag(event) {
+          // console.log('drag');
+          var time = vm.y2time(this.y);
+          // if(time < 0){
+          //   this.
+          // }
+          // console.log('time', time)
+          eventHub.$emit('TL-setTime', Math.max(0, time));
+        }
+      });
+    })
+  },
+  methods: {
+    y2time(y) {
+      let svg = document.getElementById('svg');
+      if (svg) {
+        return y * 100 / svg.clientWidth / this.timeScale / this.secInterScale;
+      } else {
+        return undefined;
+      }
+    },
+    time2y(time) {
+      let svg = document.getElementById('svg');
+      if (svg) {
+        return time * this.timeScale * this.secInterScale * svg.clientWidth / 100;
+      } else {
+        return undefined;
+      }
+    },
+    hTimelineStyle() {
+      let time;
+      if (this.isHolding) {
+        time = this.nowTimeCopy;
+      } else {
+        time = this.nowTime;
+      }
+      let top = this.time2y(time);
+      if (!top) {
+        top = 0;
+      }
+      return {
+        top: top + 'px'
+      };
+    }
+  }
+}
 </script>

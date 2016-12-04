@@ -3,14 +3,12 @@
     </mu-appbar>
     <div class="showtcp">
 
-
       <div class="top-panel">
 
         <mu-tabs :value="activeTab" @change="handleTabChange">
           <mu-tab value="basic" title="基本" />
           <mu-tab value="window" title="窗口" />
         </mu-tabs>
-
         <div v-show="activeTab == 'basic'" class="basic-tab">
           <mu-row class="icons" gutter>
             <mu-col class="icon-col" desktop="50" tablet="50" width="50">
@@ -54,11 +52,10 @@
       <Timeline :lines="lines"></Timeline>
 
       <div class="controlbar">
-        <mu-raised-button label="画线" @click="drawline" class="demo-raised-button btn" primary/>
-        <mu-raised-button label="上一步" @click="lastStep" class="demo-raised-button btn" primary/>
-        <mu-raised-button label="删除1" @click="remove" class="demo-raised-button btn" primary/>
-        <mu-raised-button label="开始计时" @click="startTimer" class="demo-raised-button btn" primary/>
-        <mu-raised-button label="暂停计时" @click="pauseTimer" class="demo-raised-button btn" primary/>
+        <mu-raised-button label="装填" @click="load" class="btn" primary/>
+        <mu-raised-button label="开始" @click="start" class="btn" primary/>
+        <mu-raised-button label="暂停" @click="pause" class="btn" primary/>
+        <mu-raised-button label="重置" @click="reset" class="btn" primary/>
       </div>
     </div>
   </div>
@@ -81,41 +78,40 @@
       }
     },
     methods: {
-      handleTabChange: function (val) {
-        this.activeTab = val;
+      handleTabChange (val) {
+        this.activeTab = val
       },
-      remove: function () {
-        eventHub.$emit('tl-removeline', 1);
+      load(){
+          function populate() {
+              let lineNum = 10;
+              let map = ['lr', 'rl'];
+              let lines = [];
+              for (let order = 1; order <= lineNum; ++order) {
+                  let line = {
+                      order: order,
+                      begTime: (order - 1) * 0.02,  // second
+                      endTime: order * 0.02,  // second
+                      lose: false,
+                      direct: map[(order - 1) % 2],
+                      x1: undefined,
+                      x2: undefined,
+                      y1: undefined,
+                      y2: undefined
+                  };
+                  lines.push(line);
+              }
+              return lines;
+          }
+          eventHub.$emit('TL-load',populate());   
       },
-      drawline: function () {
-        var lineNum = 10;
-        var order = 1;
-        var map = ['lr', 'rl'];
-        eventHub.$emit('tl-startTimer');
-        for (; order <= lineNum; ++order) {
-          (function (order) {
-            setTimeout(function () {
-              var line = {
-                order: order,
-                begTime: (order - 1) * 0.02,  // second
-                endTime: order * 0.02,  // second
-                lose: false,
-                direct: map[(order - 1) % 2]
-              };
-              eventHub.$emit('tl-addline', line);
-            }, (order - 1) * 0.02*1000*100);
-          }(order));
-        }
+      start(){
+          eventHub.$emit('TL-startTimer');
       },
-      lastStep(){
-        eventHub.$emit('tl-removeLastLine');
+      pause(){
+          eventHub.$emit('TL-pauseTimer');
       },
-      startTimer(){
-        eventHub.$emit('tl-startTimer');
-
-      },
-      pauseTimer(){
-        eventHub.$emit('tl-pauseTimer');
+      reset(){
+          eventHub.$emit('TL-resetTimer');
       }
 
     }
@@ -127,17 +123,17 @@
   .top-panel {
     height: 228px;
   }
-
+  
   .icons {
     width: 100%;
     background-color: white;
   }
-
+  
   .icon-col,
   .info-col {
     text-align: center;
   }
-
+  
   @media (max-width: 480px) {
     .timeline {
       height: calc(90vh - 179px);
@@ -147,7 +143,7 @@
       height: 64px;
     }
   }
-
+  
   .controlbar {
     width: 100%;
     background-color: slategray;
@@ -157,7 +153,7 @@
     z-index: 99;
     padding-left: calc((60px - 36px) / 2);
   }
-
+  
   .controlbar > .btn {
     margin-top: calc((60px - 36px) / 2);
   }

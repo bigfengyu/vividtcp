@@ -1,7 +1,7 @@
 <template>
   <div class="vtags">
     <Tag v-for="(item,index) in lines"
-         v-if="isNeedShow(item)"
+         v-if="needShow(item)"
          :class="['tag'+item.order]"
          :text="text(item)"
          :color="color"

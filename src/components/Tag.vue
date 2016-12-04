@@ -1,11 +1,6 @@
-<template>
-  <div class="tags" :class="tagClass">
-    <a :class="[color]">{{text}}</a>
-  </div>
-</template>
 <style>
 
-  .tags-lr a {
+.tags-lr a {
     display: inline-block;
     height: 24px;
     line-height: 23px;
@@ -26,9 +21,9 @@
     text-decoration: none;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     font-weight: bold;
-  }
+}
 
-  .tags-lr a:before {
+.tags-lr a:before {
     content: "";
     position: absolute;
     top: 10px;
@@ -43,9 +38,9 @@
     -moz-box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
     box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
-  }
+}
 
-  .tags-lr a:after {
+.tags-lr a:after {
     content: "";
     position: absolute;
     top: 0;
@@ -55,9 +50,9 @@
     border-color: transparent transparent transparent #777;
     border-style: solid;
     border-width: 12px 0 12px 12px;
-  }
+}
 
-  .tags-rl a {
+.tags-rl a {
     display: inline-block;
     height: 24px;
     line-height: 24px;
@@ -77,9 +72,9 @@
     text-decoration: none;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     font-weight: bold;
-  }
+}
 
-  .tags-rl a:before {
+.tags-rl a:before {
     content: "";
     position: absolute;
     top: 0;
@@ -89,9 +84,9 @@
     border-color: transparent #777 transparent transparent;
     border-style: solid;
     border-width: 12px 12px 12px 0;
-  }
+}
 
-  .tags-rl a:after {
+.tags-rl a:after {
     content: "";
     position: absolute;
     top: 10px;
@@ -105,60 +100,88 @@
     -moz-box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
     box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
-  }
+}
 
+.tags-lr a.green {
+    background: #66bb6a;
+}
 
+.tags-lr a.green:after {
+    border-color: transparent transparent transparent #66bb6a
+}
 
+.tags-rl a.green {
+    background: #66bb6a;
+}
 
-  .tags-lr a.green {background: #66bb6a;}
-  .tags-lr a.green:after {border-color: transparent transparent transparent #66bb6a}
+.tags-rl a.green:before {
+    border-color: transparent #66bb6a transparent transparent
+}
 
-  .tags-rl a.green {background: #66bb6a;}
-  .tags-rl a.green:before {border-color: transparent #66bb6a transparent transparent}
+.tags-lr a.red {
+    background: #880000;
+}
 
-  .tags-lr a.red {background: #880000;}
-  .tags-lr a.red:after {border-color: transparent transparent transparent #880000}
+.tags-lr a.red:after {
+    border-color: transparent transparent transparent #880000
+}
 
-  .tags-rl a.red {background: #880000;}
-  .tags-rl a.red:before {border-color: transparent #880000 transparent transparent}
+.tags-rl a.red {
+    background: #880000;
+}
 
-  .tags a:hover {
+.tags-rl a.red:before {
+    border-color: transparent #880000 transparent transparent
+}
+
+.tags a:hover {
     background-color: #777;
-  }
-  .tags-lr a:hover:after{
-    border-color: transparent transparent transparent #777;
-  }
-  .tags-rl a:hover:before{
-    border-color: transparent #777 transparent transparent;
-  }
+}
 
+.tags-lr a:hover:after {
+    border-color: transparent transparent transparent #777;
+}
+
+.tags-rl a:hover:before {
+    border-color: transparent #777 transparent transparent;
+}
 
 </style>
+
+<template>
+
+<div class="tags" :class="tagClass">
+    <a :class="[color]">{{text}}</a>
+</div>
+
+</template>
+
 <script>
 
-  export default{
+export default {
     props: {
-      'text': {
-        default: ''
-      },
-      'direct': {
-        type: String,
-        default: 'lr'
-      },
-      'color': {
-        type: String,
-        default: '#00a6df'
-      }
+        'text': {
+            default: ''
+        },
+        'direct': {
+            type: String,
+            default: 'lr'
+        },
+        'color': {
+            type: String,
+            default: '#00a6df'
+        }
     },
     computed: {
-      tagClass: function () {
-        var className = 'tags-' + this.direct;
-        if (this.small) {
-          className += ' tag-small';
+        tagClass: function() {
+            var className = 'tags-' + this.direct;
+            if (this.small) {
+                className += ' tag-small';
+            }
+            return className;
         }
-        return className;
-      }
     }
 
-  }
+}
+
 </script>

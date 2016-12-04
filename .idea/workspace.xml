@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ce9b0020-e798-4ba8-9323-f1629ddee0f1" name="Default" comment="" />
+    <list default="true" id="ce9b0020-e798-4ba8-9323-f1629ddee0f1" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/ArrowLine.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/Hello.vue" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/Render.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/SmartList.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/eventHub.vue" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/components/utils.js" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/App.vue" afterPath="$PROJECT_DIR$/src/App.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/TimeTags/index.vue" afterPath="$PROJECT_DIR$/src/components/TimeTags/index.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/TimeTags/script.js" afterPath="$PROJECT_DIR$/src/components/TimeTags/script.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/TimelineNew.vue" afterPath="$PROJECT_DIR$/src/components/TimelineNew.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/Transcanvas.js" afterPath="$PROJECT_DIR$/src/components/Transcanvas.js" />
+    </list>
     <ignored path="tcpip.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,36 +34,52 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Hello.vue" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/components/Hello.vue">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Timeline.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/Timeline.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2214">
-              <caret line="82" column="17" selection-start-line="82" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
+            <state relative-caret-position="339">
+              <caret line="63" column="18" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Transcanvas.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TimeIndicator.vue" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/components/TimeIndicator.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="378">
+              <caret line="14" column="55" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TimelineNew.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/TimelineNew.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="27">
+              <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Transcanvas.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/Transcanvas.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2079">
-              <caret line="77" column="2" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="2" />
+            <state relative-caret-position="854">
+              <caret line="114" column="1" selection-start-line="114" selection-start-column="1" selection-end-line="114" selection-end-column="1" />
               <folding>
-                <element signature="e#0#33#0" expanded="true" />
-                <element signature="n#!!block;n#makeArrowLine#0" expanded="true" />
-                <element signature="n#!!block;n#test#0" expanded="true" />
-                <element signature="e#2200#3175#0" expanded="true" />
+                <marker date="1480772105000" expanded="true" signature="396:406" placeholder="{...}" />
+                <marker date="1480772105000" expanded="false" signature="2061:3221" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="2097:2289" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="2295:2466" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="2498:2700" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="2560:2694" placeholder="{&quot;stroke-width&quot;: 0.5...}" />
+                <marker date="1480772105000" expanded="true" signature="2750:3011" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="2814:3005" placeholder="{&quot;d&quot;: 'M-1 0 L0 -2 L1 0 z'...}" />
+                <marker date="1480772105000" expanded="true" signature="3051:3121" placeholder="{...}" />
+                <marker date="1480772105000" expanded="true" signature="3131:3188" placeholder="[...]" />
               </folding>
             </state>
           </provider>
@@ -92,8 +121,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1917">
-              <caret line="75" column="3" selection-start-line="75" selection-start-column="3" selection-end-line="75" selection-end-column="3" />
+            <state relative-caret-position="2025">
+              <caret line="79" column="3" selection-start-line="79" selection-start-column="3" selection-end-line="79" selection-end-column="3" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
@@ -110,6 +139,9 @@
         <option value="JavaScript File" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -131,6 +163,7 @@
         <option value="$PROJECT_DIR$/src/main.js" />
         <option value="$PROJECT_DIR$/src/components/Transcanvas.vue" />
         <option value="$PROJECT_DIR$/src/components/Transcanvas.js" />
+        <option value="$PROJECT_DIR$/src/components/TimeIndicator.vue" />
       </list>
     </option>
   </component>
@@ -142,9 +175,10 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1280" />
-    <option name="height" value="773" />
+    <option name="x" value="1280" />
+    <option name="y" value="-214" />
+    <option name="width" value="1920" />
+    <option name="height" value="1052" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -214,8 +248,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -268,6 +300,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -384,11 +418,12 @@
       <workItem from="1480656369909" duration="987000" />
       <workItem from="1480682359723" duration="131000" />
       <workItem from="1480733417347" duration="138000" />
+      <workItem from="1480775364998" duration="391000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="89753000" />
+    <option name="totallyTimeSpent" value="90144000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -400,10 +435,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1280" height="773" extended-state="1" />
+    <frame x="1280" y="-214" width="1920" height="1052" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13979349" sideWeight="0.49082568" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13954712" sideWeight="0.49082568" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297546" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2494043" sideWeight="0.5091743" order="2" side_tool="true" content_ui="tabs" />
@@ -438,27 +473,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/components/Timeline.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="22" column="8" selection-start-line="22" selection-start-column="8" selection-end-line="22" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/App.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="580">
-          <caret line="29" column="10" selection-start-line="29" selection-start-column="10" selection-end-line="29" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Hello.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Hello.vue" />
     <entry file="file://$PROJECT_DIR$/node_modules/gsap/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1620">
@@ -622,13 +637,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/eventHub.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/eventHub.vue" />
     <entry file="file://$PROJECT_DIR$/node_modules/snapsvg/demos/animated-game/js/snap.svg.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
@@ -671,13 +680,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/TranscanvasOLD.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-80">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/TranscanvasOLD.vue" />
     <entry file="file://$PROJECT_DIR$/src/components/VerticalTags.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="580">
@@ -722,39 +725,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Hello.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Hello.vue" />
     <entry file="file://$PROJECT_DIR$/src/components/utils.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="243">
           <caret line="9" column="3" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Timeline.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2214">
-          <caret line="82" column="17" selection-start-line="82" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Transcanvas.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2079">
-          <caret line="77" column="2" selection-start-line="77" selection-start-column="2" selection-end-line="77" selection-end-column="2" />
-          <folding>
-            <element signature="e#0#33#0" expanded="true" />
-            <element signature="n#!!block;n#makeArrowLine#0" expanded="true" />
-            <element signature="n#!!block;n#test#0" expanded="true" />
-            <element signature="e#2200#3175#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -787,11 +762,54 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1917">
-          <caret line="75" column="3" selection-start-line="75" selection-start-column="3" selection-end-line="75" selection-end-column="3" />
+        <state relative-caret-position="2025">
+          <caret line="79" column="3" selection-start-line="79" selection-start-column="3" selection-end-line="79" selection-end-column="3" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Transcanvas.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="854">
+          <caret line="114" column="1" selection-start-line="114" selection-start-column="1" selection-end-line="114" selection-end-column="1" />
+          <folding>
+            <marker date="1480772105000" expanded="true" signature="396:406" placeholder="{...}" />
+            <marker date="1480772105000" expanded="false" signature="2061:3221" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="2097:2289" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="2295:2466" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="2498:2700" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="2560:2694" placeholder="{&quot;stroke-width&quot;: 0.5...}" />
+            <marker date="1480772105000" expanded="true" signature="2750:3011" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="2814:3005" placeholder="{&quot;d&quot;: 'M-1 0 L0 -2 L1 0 z'...}" />
+            <marker date="1480772105000" expanded="true" signature="3051:3121" placeholder="{...}" />
+            <marker date="1480772105000" expanded="true" signature="3131:3188" placeholder="[...]" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/TimelineNew.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="27">
+          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Timeline.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="339">
+          <caret line="63" column="18" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/TimeIndicator.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="14" column="55" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
+          <folding />
         </state>
       </provider>
     </entry>
