@@ -25,7 +25,7 @@ export default {
       // console.log('lineData.begTime', lineData.begTime);
       // console.log('context.props.nowTime', context.props.nowTime);
 
-      if (lineData.begTime <= context.props.nowTime) {
+      if (lineData.begTime < context.props.nowTime) {
         arrowLines.push(makeArrowLine(
           p,
           lineData,
@@ -54,11 +54,16 @@ export default {
 }
 
 function makeArrowLine(p, lineData, nowTime, timeScale, secInterScale) {
+  let endTime = lineData.endTime;
+  if(lineData.loseTime != -1 && lineData.loseTime < lineData.endTime){
+    endTime = lineData.loseTime;
+  }
+
   let strokeColor, x1, x2, y1, y2, rotDegree;
-  let timeInterval = lineData.endTime - lineData.begTime;
+  let timeInterval = endTime - lineData.begTime;
   let percentage = Math.min(1, (nowTime - lineData.begTime) / timeInterval);
   let width = 100;
-  let height = (lineData.endTime - lineData.begTime) * timeScale * secInterScale;
+  let height = (endTime - lineData.begTime) * timeScale * secInterScale;
 
   y1 = lineData.begTime * timeScale * secInterScale;
   y2 = y1 + height * percentage;

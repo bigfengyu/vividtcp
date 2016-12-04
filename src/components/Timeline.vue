@@ -49,7 +49,7 @@
 //      order:0
 //      begTime:3,  // second
 //      endTime:4,  // second
-//      lose:true
+//      loseTime:0
 //       direct:'lr'
 //      y1:undefined
 //      y2:undefined

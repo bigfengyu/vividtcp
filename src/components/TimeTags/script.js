@@ -70,7 +70,7 @@ export default {
         if (lineData.direct === 'lr') {
           return lineData.begTime < this.nowTime;
         } else {
-          return lineData.endTime < this.nowTime;
+          return lineData.endTime <  this.nowTime;
         }
       } else {
         if (lineData.direct === 'lr') {
