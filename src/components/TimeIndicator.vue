@@ -49,6 +49,10 @@ export default {
     },
     timerState: {
       required: true
+    },
+    svgWidth: {
+      require: true,
+      default: 1
     }
   },
   data() {
@@ -106,20 +110,10 @@ export default {
   },
   methods: {
     y2time(y) {
-      let svg = document.getElementById('svg');
-      if (svg) {
-        return y * 100 / svg.clientWidth / this.timeScale / this.secInterScale;
-      } else {
-        return undefined;
-      }
+        return y * 100 / this.svgWidth / this.timeScale / this.secInterScale;
     },
     time2y(time) {
-      let svg = document.getElementById('svg');
-      if (svg) {
-        return time * this.timeScale * this.secInterScale * svg.clientWidth / 100;
-      } else {
-        return undefined;
-      }
+        return time * this.timeScale * this.secInterScale * this.svgWidth / 100;
     },
     hTimelineStyle() {
       let time;

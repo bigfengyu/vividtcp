@@ -25,6 +25,10 @@ export default {
     },
     secInterScale: {
       require: true
+    },
+    svgWidth: {
+      require: true,
+      default: 1
     }
   },
   computed: {
@@ -40,6 +44,9 @@ export default {
         'right': 'red'
       }[this.side];
     }
+  },
+  mounted() {
+
   },
   methods: {
     lineFinishedSVGPos(lineData) {
@@ -59,8 +66,6 @@ export default {
       return pos;
     },
     needShow(lineData) {
-      // console.log('isNeedShow', lineData);
-
       if (this.side === 'left') {
         if (lineData.direct === 'lr') {
           return lineData.begTime < this.nowTime;
@@ -77,24 +82,17 @@ export default {
 
     },
     calcY(lineData, pos) {
-      var svg = document.getElementById('svg');
-      if (svg) {
-        // console.log('pos', pos);
-        let y = {
-          left: {
-            lr: pos.y1,
-            rl: pos.y2
-          },
-          right: {
-            lr: pos.y2,
-            rl: pos.y1
-          }
-        }[this.side][lineData.direct];
-        // console.log('y', y);
-        return svg.clientWidth * y / 100;
-      } else {
-        return undefined;
-      }
+      let y = {
+        left: {
+          lr: pos.y1,
+          rl: pos.y2
+        },
+        right: {
+          lr: pos.y2,
+          rl: pos.y1
+        }
+      }[this.side][lineData.direct];
+      return this.svgWidth * y / 100;
     },
     style(lineData) {
       var style = {

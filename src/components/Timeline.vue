@@ -29,15 +29,15 @@
 <template>
 <div class="timeline">
   <mu-row class="timeline-scroll">
-    <TimeIndicator :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :timer-state="timerState"></TimeIndicator>
+    <TimeIndicator :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
-      <time-tags side="left" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale"></time-tags>
+      <time-tags side="left" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
     <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper">
       <Transcanvas :lines="lines" :time-scale="timeScale" :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
-      <time-tags side="right" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale"></time-tags>
+      <time-tags side="right" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
   </mu-row>
 </div>
@@ -69,20 +69,21 @@ export default {
   data() {
     return {
       lines: [],
-      nowTime: -1,
+      nowTime: 0,
       intervalId: undefined,
       secInterScale: 3,
       timeScale: 100,
       leftTags: [],
       rightTags: [],
       preventOrderSet: {},
+      svgWidth: 0
     }
   },
-  computed:{
-    timerState(){
-      if(this.intervalId){
+  computed: {
+    timerState() {
+      if (this.intervalId) {
         return 'run';
-      }else{
+      } else {
         return 'stop';
       }
     }
@@ -90,7 +91,9 @@ export default {
   mounted() {
     var vm = this;
     this.$nextTick(function() {
-      vm.nowTime = 0; // 强制vue在svg挂载之后刷新h-timeline的高度
+      // vm.nowTime = 0; // 强制vue在svg挂载之后刷新h-timeline的高度
+      window.addEventListener('resize', vm.handleResize);
+      vm.handleResize();
     });
   },
   created() {
@@ -107,6 +110,9 @@ export default {
     eventHub.$off('TL-setTime', this.setTime);
   },
   methods: {
+    handleResize(event) {
+      this.svgWidth = document.getElementById('svg').clientWidth;
+    },
     load: function(lines) {
       console.log('lines', lines);
       this.lines = lines;

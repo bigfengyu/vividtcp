@@ -63,7 +63,7 @@
 
 <script>
 
-  import Timeline from './components/TimelineNew'
+  import Timeline from './components/Timeline'
   import Snap from 'snapsvg';
   export default {
     name: 'app',
@@ -102,7 +102,7 @@
               }
               return lines;
           }
-          eventHub.$emit('TL-load',populate());   
+          eventHub.$emit('TL-load',populate());
       },
       start(){
           eventHub.$emit('TL-startTimer');
@@ -123,17 +123,17 @@
   .top-panel {
     height: 228px;
   }
-  
+
   .icons {
     width: 100%;
     background-color: white;
   }
-  
+
   .icon-col,
   .info-col {
     text-align: center;
   }
-  
+
   @media (max-width: 480px) {
     .timeline {
       height: calc(90vh - 179px);
@@ -143,7 +143,7 @@
       height: 64px;
     }
   }
-  
+
   .controlbar {
     width: 100%;
     background-color: slategray;
@@ -153,7 +153,7 @@
     z-index: 99;
     padding-left: calc((60px - 36px) / 2);
   }
-  
+
   .controlbar > .btn {
     margin-top: calc((60px - 36px) / 2);
   }
