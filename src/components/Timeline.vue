@@ -44,7 +44,7 @@
 </template>
 
 <script>
-//  var lines = [
+//  let lines = [
 //    {
 //      order:0
 //      begTime:3,  // second
@@ -77,20 +77,16 @@ export default {
       rightTags: [],
       preventOrderSet: {},
       svgWidth: 0,
-      svgHeight: 0
+      svgHeight: 0,
+      timeRangeHigh: -1,
+      timerState:'stop'
     }
   },
   computed: {
-    timerState() {
-      if (this.intervalId) {
-        return 'run';
-      } else {
-        return 'stop';
-      }
-    }
+
   },
   mounted() {
-    var vm = this;
+    let vm = this;
     this.$nextTick(function() {
       // vm.nowTime = 0; // 强制vue在svg挂载之后刷新h-timeline的高度
       window.addEventListener('resize', vm.handleResize);
@@ -103,12 +99,15 @@ export default {
     eventHub.$on('TL-pauseTimer', this.pauseTimer);
     eventHub.$on('TL-resetTimer', this.resetTimer);
     eventHub.$on('TL-setTime', this.setTime);
+    eventHub.$on('TL-setTimeRange', this.setTimeRange);
   },
   beforeDestroy() {
     eventHub.$off('TL-load', this.addline);
     eventHub.$off('TL-startTimer', this.setTime);
     eventHub.$off('TL-pauseTimer', this.pauseTimer);
     eventHub.$off('TL-setTime', this.setTime);
+    eventHub.$off('TL-resetTimer', this.resetTimer);
+    eventHub.$off('TL-setTimeRange', this.setTimeRange);
   },
   methods: {
     handleResize(event) {
@@ -127,7 +126,7 @@ export default {
       function predicator(line) {
         return line.order != order;
       }
-      var vm = this;
+      let vm = this;
       eventHub.$emit('t-removeline', order);
       vm.preventOrderSet[order] = true;
       this.lines = _.filter(this.lines, predicator);
@@ -140,32 +139,61 @@ export default {
       }
     },
     freshTime(interval) {
-      var seconds = interval / 1000;
+      let seconds = interval / 1000;
       this.nowTime += seconds / this.timeScale;
     },
+    setTimerState(state){
+      if(this.timerState != state){
+        this.timerState = state;
+        eventHub.$emit('timerStateChange', state);
+      }
+    },
     startTimer() {
-      window.TT = new Date();
-      if (!this.intervalId) {
-        var vm = this;
-        var freshMs = 10;
-        this.intervalId = setInterval(function() {
+      let vm = this;
+      let freshMs = 10;
+      this.setTimerState('run');
+
+      this.intervalId = setInterval(function() {
+        if (vm.timeRangeHigh != -1 && vm.nowTime >= vm.timeRangeHigh) {
+          vm.nowTime = vm.timeRangeHigh;
+          vm.intervalId = clearInterval(vm.intervalId);
+          vm.setTimerState('stop');
+        } else {
           vm.freshTime(freshMs);
-        }, freshMs);
+        }
+      }, freshMs);
+
+    },
+    setTimeRange(low, high) {
+      if (low) {
+        this.timeNow = low;
+      } else {
+        this.timeNow = 0
+      }
+      if (high) {
+        this.timeRangeHigh = high;
+      } else {
+        this.timeRangeHigh = -1;
       }
     },
     pauseTimer() {
       if (this.intervalId) {
         this.intervalId = clearInterval(this.intervalId);
       }
+      this.setTimerState('pause');
     },
     setTime(time) {
-      console.log('setTime');
+      if(time > this.timeRangeHigh){
+        this.timeRangeHigh = -1;
+      }
       this.nowTime = time;
     },
     resetTimer() {
-      this.pauseTimer();
+      if (this.intervalId) {
+        this.intervalId = clearInterval(this.intervalId);
+      }
       this.nowTime = 0;
-      // console.log('nowTime',nowTime);
+      this.setTimerState('stop');
     }
   }
 
