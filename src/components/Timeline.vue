@@ -29,7 +29,7 @@
 <template>
 <div class="timeline">
   <mu-row class="timeline-scroll">
-    <TimeIndicator :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth"></TimeIndicator>
+    <TimeIndicator :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
       <time-tags side="left" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
