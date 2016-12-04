@@ -53,6 +53,10 @@ export default {
     svgWidth: {
       required: true,
       default: 1
+    },
+    svgHeight: {
+      required: true,
+      default: 1
     }
   },
   data() {
@@ -110,24 +114,23 @@ export default {
   },
   methods: {
     y2time(y) {
-        return y * 100 / this.svgWidth / this.timeScale / this.secInterScale;
+      return y * 100 / this.svgWidth / this.timeScale / this.secInterScale;
     },
     time2y(time) {
-        return time * this.timeScale * this.secInterScale * this.svgWidth / 100;
+      return time * this.timeScale * this.secInterScale * this.svgWidth / 100;
     },
-    hTimelineStyle() {
+    top(){
       let time;
       if (this.isHolding) {
         time = this.nowTimeCopy;
       } else {
         time = this.nowTime;
       }
-      let top = this.time2y(time);
-      if (!top) {
-        top = 0;
-      }
+      return this.time2y(time);
+    },
+    hTimelineStyle() {
       return {
-        top: top + 'px'
+        top: this.top() + 'px'
       };
     }
   }
