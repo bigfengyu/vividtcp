@@ -41,9 +41,6 @@ export default {
     nowTime: {
       required: true
     },
-    timeScale: {
-      required: true
-    },
     secInterScale: {
       required: true
     },
@@ -114,10 +111,10 @@ export default {
   },
   methods: {
     y2time(y) {
-      return y * 100 / this.svgWidth / this.timeScale / this.secInterScale;
+      return y * 100 / this.svgWidth / this.secInterScale;
     },
     time2y(time) {
-      return time * this.timeScale * this.secInterScale * this.svgWidth / 100;
+      return time  * this.secInterScale * this.svgWidth / 100;
     },
     top(){
       let time;

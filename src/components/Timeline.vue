@@ -29,15 +29,15 @@
 <template>
 <div class="timeline">
   <mu-row class="timeline-scroll">
-    <TimeIndicator :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
+    <TimeIndicator :now-time="nowTime"  :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
-      <time-tags side="left" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
+      <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
     <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper">
-      <Transcanvas :lines="lines" :time-scale="timeScale" :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
+      <Transcanvas :lines="lines"  :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
-      <time-tags side="right" :lines="lines" :now-time="nowTime" :time-scale="timeScale" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
+      <time-tags side="right" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
   </mu-row>
 </div>
@@ -68,7 +68,7 @@ export default {
   },
   props:{
     secInterScale:{
-      default:3
+      default:300
     },
     timeScale:{
       default:100

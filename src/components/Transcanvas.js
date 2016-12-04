@@ -9,9 +9,6 @@ export default {
     nowTime: {
       required: true
     },
-    timeScale: {
-      required: true
-    },
     secInterScale: {
       required: true
     }
@@ -30,7 +27,6 @@ export default {
           p,
           lineData,
           context.props.nowTime,
-          context.props.timeScale,
           context.props.secInterScale));
       }
     }
@@ -53,7 +49,7 @@ export default {
   }
 }
 
-function makeArrowLine(p, lineData, nowTime, timeScale, secInterScale) {
+function makeArrowLine(p, lineData, nowTime, secInterScale) {
   let endTime = lineData.endTime;
   if(lineData.loseTime != -1 && lineData.loseTime < lineData.endTime){
     endTime = lineData.loseTime;
@@ -63,9 +59,9 @@ function makeArrowLine(p, lineData, nowTime, timeScale, secInterScale) {
   let timeInterval = endTime - lineData.begTime;
   let percentage = Math.min(1, (nowTime - lineData.begTime) / timeInterval);
   let width = 100;
-  let height = (endTime - lineData.begTime) * timeScale * secInterScale;
+  let height = (endTime - lineData.begTime) * secInterScale;
 
-  y1 = lineData.begTime * timeScale * secInterScale;
+  y1 = lineData.begTime * secInterScale;
   y2 = y1 + height * percentage;
 
 

@@ -20,9 +20,6 @@ export default {
     side: {
       require: true
     },
-    timeScale: {
-      require: true
-    },
     secInterScale: {
       require: true
     },
@@ -52,10 +49,9 @@ export default {
     lineFinishedSVGPos(lineData) {
       let pos = {};
       let nowTime = this.nowTime;
-      let timeScale = this.timeScale;
       let secInterScale = this.secInterScale;
-      pos['y1'] = lineData.begTime * timeScale * secInterScale;
-      pos['y2'] = lineData.endTime * timeScale * secInterScale;
+      pos['y1'] = lineData.begTime * secInterScale;
+      pos['y2'] = lineData.endTime * secInterScale;
       if (lineData.direct === 'lr') {
         pos['x1'] = 0;
         pos['x2'] = 98;
