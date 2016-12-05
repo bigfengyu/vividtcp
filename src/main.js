@@ -11,6 +11,7 @@ window.eventHub = new Vue();
 
 Vue.use(MuseUI);
 
+
 new Vue({
   el: '#app',
   template: '<App/>',

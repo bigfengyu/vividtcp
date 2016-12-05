@@ -34,21 +34,22 @@
   padding: 0 calc((60px - 36px) / 2);
 }
 
+.controlbar>div {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .controlbar .btn {
   margin-top: calc((60px - 36px) / 2);
 }
 
-.controlbar .sidebar {
-  margin-top: calc((60px - 24px) / 2);
-}
-
-.controlbar .switcher {
-  margin-top: calc((60px - 24px) / 2);
-  margin-right: 3px;
+.controlbar .menu {
+  text-align: left;
+  /*margin-bottom: calc((60px - 48px) / 2);*/
 }
 
 .controlbar .switchers {
-  text-align: right;
+  margin-top: calc((60px - 25px) / 2);
 }
 
 .slider-text>.left {
@@ -100,13 +101,13 @@
               <mu-col desktop="20" tablet="20" width="5"></mu-col>
             </mu-row>
             <mu-row class="slider-text">
-              <mu-col class="left" desktop="20" tablet="20" width="5">
+              <mu-col class="left" desktop="20" tablet="20" width="10">
                 慢
               </mu-col>
-              <mu-col class="center" desktop="60" tablet="60" width="90">
+              <mu-col class="center" desktop="60" tablet="60" width="80">
                 速度
               </mu-col>
-              <mu-col class="right" desktop="20" tablet="20" width="5">
+              <mu-col class="right" desktop="20" tablet="20" width="10">
                 快
               </mu-col>
             </mu-row>
@@ -122,13 +123,13 @@
               <mu-col desktop="20" tablet="20" width="5"></mu-col>
             </mu-row>
             <mu-row class="slider-text">
-              <mu-col class="left" desktop="20" tablet="20" width="5">
+              <mu-col class="left" desktop="20" tablet="20" width="10">
                 小
               </mu-col>
-              <mu-col class="center" desktop="60" tablet="60" width="90">
+              <mu-col class="center" desktop="60" tablet="60" width="80">
                 间距
               </mu-col>
-              <mu-col class="right" desktop="20" tablet="20" width="5">
+              <mu-col class="right" desktop="20" tablet="20" width="10">
                 大
               </mu-col>
             </mu-row>
@@ -140,22 +141,32 @@
 
     <mu-divider/>
 
-    <Timeline :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll"></Timeline>
+    <Timeline :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode">
+    </Timeline>
 
 
     <div class="controlbar">
-      <mu-row>
-        <mu-col desktop="50" tablet="50" width="50">
-          <mu-raised-button label="装填" @click="load" class="btn" primary/>
-          <mu-raised-button label="设置区间" @click="setTimeRange" class="btn" primary/>
-          <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
-          <mu-raised-button label="重置" @click="reset" class="btn" primary/>
-          <mu-raised-button label="滚动" @click="scroll" class="btn" primary/>
-        </mu-col>
-        <mu-col desktop="50" tablet="50" width="50" class="switchers">
+      <div class="btns">
+        <mu-raised-button label="装填" @click="load" class="btn" primary/>
+        <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
+        <mu-raised-button label="重置" @click="reset" class="btn" primary/>
+      </div>
+      <div style="float:right;">
+
+        <div class="switchers" style="float:right;">
           <mu-switch label="自动滚动" v-model="autoScroll" class="switcher" />
-        </mu-col>
-      </mu-row>
+        </div>
+        <div class="menus" style="float:right;">
+          <!-- <span style="display:inline-block;vertical-align:center;">暂停模式：</span> -->
+          <mu-dropDown-menu :value="breakMode" @change="handleBreakModeChange" class="menu">
+            <mu-menu-item value="until-end" title="画完" />
+            <mu-menu-item value="single-step" title="单次" />
+            <mu-menu-item value="infinate" title="无尽" />
+          </mu-dropDown-menu>
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
@@ -185,7 +196,8 @@ export default {
         max: 800,
         value: 300
       },
-      autoScroll: true
+      autoScroll: true,
+      breakMode: 'until-end'
     }
   },
   computed: {
@@ -210,9 +222,8 @@ export default {
     eventHub.$off('timerStateChange', this.handleTimerStateChange);
   },
   methods: {
-    scroll() {
-      console.log('scroll');
-      eventHub.$emit('TL-scrollTo', 500);
+    handleBreakModeChange(val) {
+      this.breakMode = val;
     },
     handleTabChange(val) {
       this.activeTab = val;
@@ -222,7 +233,7 @@ export default {
     },
     load() {
       function populate() {
-        let lineNum = 50;
+        let lineNum = 5;
         let map = ['lr', 'rl'];
         let lines = [];
         for (let order = 1; order <= lineNum; ++order) {
@@ -239,13 +250,12 @@ export default {
       }
       eventHub.$emit('TL-load', populate());
     },
-    setTimeRange() {
-      console.log('setTimeRange');
-      eventHub.$emit('TL-setTimeRange', 0.02, 0.07);
-    },
     toggle() {
       if (this.timerState === 'run') {
         eventHub.$emit('TL-pauseTimer');
+      } else if(this.timerState === 'stop'){
+        eventHub.$emit('TL-resetTimer');
+        eventHub.$emit('TL-startTimer');
       } else {
         eventHub.$emit('TL-startTimer');
       }

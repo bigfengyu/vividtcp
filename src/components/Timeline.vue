@@ -78,6 +78,9 @@ export default {
     },
     autoScroll: {
       default: true
+    },
+    breakMode: { // 'single-step' 'until-end'  'infinate'
+      default: 'until-end'
     }
   },
   data() {
@@ -90,9 +93,9 @@ export default {
       preventOrderSet: {},
       svgWidth: 0,
       svgHeight: 0,
-      timeRangeHigh: -1,
       timerState: 'stop',
-      unwatchAutoScroll: undefined
+      breakPoints: [],
+      freshMs: 20
     }
   },
   mounted() {
@@ -107,10 +110,8 @@ export default {
     eventHub.$on('TL-load', this.load);
     eventHub.$on('TL-startTimer', this.startTimer);
     eventHub.$on('TL-pauseTimer', this.pauseTimer);
-    eventHub.$on('TL-resetTimer', this.resetTimer);
     eventHub.$on('TL-setTime', this.setTime);
-    eventHub.$on('TL-setTimeRange', this.setTimeRange);
-    eventHub.$on('TL-scrollTo', this.scrollTo);
+    eventHub.$on('TL-resetTimer', this.resetTimer);
   },
   beforeDestroy() {
     eventHub.$off('TL-load', this.addline);
@@ -118,26 +119,12 @@ export default {
     eventHub.$off('TL-pauseTimer', this.pauseTimer);
     eventHub.$off('TL-setTime', this.setTime);
     eventHub.$off('TL-resetTimer', this.resetTimer);
-    eventHub.$off('TL-setTimeRange', this.setTimeRange);
-    eventHub.$off('TL-scrollTo', this.scrollTo);
   },
   methods: {
-    // timelineStyle() {
-    //   let height = Math.max(this.$refs.indica2000;
-    //   return {
-    //     height: height + 'px'
-    //   }
-    // },
-    scrollTo(y,time) {
+    scrollTo(y, time) {
       var vm = this;
       TweenLite.to(vm.$el, time, {
-        scrollTo: y,
-        onStart: function() {
-          vm.isScrolling = true;
-        },
-        onComplete: function() {
-          vm.isScrolling = false;
-        }
+        scrollTo: y
       });
     },
     handleResize(event) {
@@ -146,7 +133,6 @@ export default {
       this.svgHeight = svg.clientHeight;
     },
     load: function(lines) {
-      console.log('lines', lines);
       this.lines = lines;
     },
     addline(line) {
@@ -180,31 +166,11 @@ export default {
     },
     startTimer() {
       let vm = this;
-      let freshMs = 10;
       this.setTimerState('run');
-
       this.intervalId = setInterval(function() {
-        if (vm.timeRangeHigh != -1 && vm.nowTime >= vm.timeRangeHigh) {
-          vm.nowTime = vm.timeRangeHigh;
-          vm.intervalId = clearInterval(vm.intervalId);
-          vm.setTimerState('stop');
-        } else {
-          vm.freshTime(freshMs);
-        }
-      }, freshMs);
+        vm.freshTime(vm.freshMs);
+      }, vm.freshMs);
 
-    },
-    setTimeRange(low, high) {
-      if (low) {
-        this.timeNow = low;
-      } else {
-        this.timeNow = 0
-      }
-      if (high) {
-        this.timeRangeHigh = high;
-      } else {
-        this.timeRangeHigh = -1;
-      }
     },
     pauseTimer() {
       if (this.intervalId) {
@@ -212,30 +178,74 @@ export default {
       }
       this.setTimerState('pause');
     },
-    setTime(time) {
-      if (time > this.timeRangeHigh) {
-        this.timeRangeHigh = -1;
-      }
-      this.nowTime = time;
-    },
-    resetTimer() {
+    stopTimer(){
       if (this.intervalId) {
         this.intervalId = clearInterval(this.intervalId);
       }
-      this.nowTime = 0;
       this.setTimerState('stop');
-      this.scrollTo(0,0.2);
     },
-  },
-  watch: {
-    nowTime(newVal, oldVal) {
+    setTime(time) {
+      this.nowTime = time;
+    },
+    resetTimer() {
+      this.stopTimer();
+      this.nowTime = 0;
+      this.scrollTo(0, 0.2);
+    },
+    handleAutoScroll() {
       if (this.autoScroll) {
         let height = this.$el.offsetHeight;
         let indicator = this.$refs.timeIndicator;
-        let top = indicator.top()
-        let percent = (top - this.$el.scrollTop) / height
-        if (this.timerState === 'run' && !indicator.isHolding && percent > 0.7) {
-          this.scrollTo(top,0.5);
+        let top = indicator.top();
+        let percent = (top - this.$el.scrollTop) / height;
+        if (this.timerState === 'run' && !indicator.isHolding && percent > 0.7 && percent < 1) {
+          this.scrollTo(top, 0.5);
+        }
+      }
+    },
+    handleBreakPoint(time) {
+      let offset = this.freshMs / 1000 / this.timeScale;
+      let index = _.findIndex(this.breakPoints, (t) => time < t + offset && time > t);
+      if (index != -1) {
+        if(this.breakMode === 'single-step')
+          this.pauseTimer();
+        else if(this.breakMode == 'until-end'){
+          this.stopTimer();
+        }
+      }
+    },
+    setBreakPoints(mode){
+      if (mode === 'single-step') {
+        this.breakPoints = _.map(this.lines, _.property('endTime'));
+        console.log(this.breakPoints);
+      } else if (mode === 'until-end') {
+        this.breakPoints = [_.maxBy(this.lines, 'endTime').endTime];
+        console.log(this.breakPoints);
+      } else {
+        ;
+      }
+    }
+  },
+  watch: {
+    nowTime(newVal, oldVal) {
+      this.handleAutoScroll();
+      this.handleBreakPoint(newVal);
+    },
+    lines() {
+      this.setBreakPoints(this.breakMode);
+    },
+    breakMode(){
+      this.setBreakPoints(this.breakMode);
+    },
+    secInterScale() {
+      if (this.autoScroll) {
+        console.log('hahaha');
+        let height = this.$el.offsetHeight;
+        let indicator = this.$refs.timeIndicator;
+        let top = indicator.top();
+        let percent = (top - this.$el.scrollTop) / height;
+        if (this.timerState === 'run' && !indicator.isHolding) {
+          this.scrollTo(top, 0.5);
         }
       }
     }
