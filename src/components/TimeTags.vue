@@ -1,5 +1,13 @@
-import Tag from '../Tag'
-import config from '../../config.js'
+<template>
+<div class="vtags">
+  <Tag v-for="(item,index) in lines" v-if="needShow(item)" :class="['tag'+item.order]" :text="text(item)" :color="color" :direct="direct" :style="style(item)">
+  </Tag>
+</div>
+</template>
+
+<script>
+import Tag from './Tag'
+import config from '../config.js'
 export default {
   name: 'TimeTags',
   components: {
@@ -112,3 +120,4 @@ export default {
     }
   }
 }
+</script>

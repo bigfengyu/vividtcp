@@ -56,7 +56,7 @@
 //      y2:undefined
 //    }
 //  ];
-import TimeTags from './TimeTags/index'
+import TimeTags from './TimeTags'
 import Transcanvas from './Transcanvas.js'
 import TimeIndicator from './TimeIndicator'
 import Scroll from 'ScrollToPlugin'
@@ -234,10 +234,10 @@ export default {
       }
       if (mode === 'single-step') {
         this.breakPoints = _.map(this.lines, _.property('endTime'));
-        console.log(this.breakPoints);
+        // console.log(this.breakPoints);
       } else if (mode === 'until-end') {
         this.breakPoints = [_.maxBy(this.lines, 'endTime').endTime];
-        console.log(this.breakPoints);
+        // console.log(this.breakPoints);
       } else {;
       }
     }
