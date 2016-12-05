@@ -13,7 +13,7 @@
 .timeline-left,
 .canvas-wrapper,
 .timeline-right {
-  height: 2000px;
+  /*height: 2000px;*/
   position: relative;
 }
 
@@ -34,7 +34,7 @@
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
       <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
-    <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper">
+    <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper" :style="canvasWrapperStyle()">
       <Transcanvas :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
@@ -93,6 +93,7 @@ export default {
       preventOrderSet: {},
       svgWidth: 0,
       svgHeight: 0,
+      timelineHeight: 0,
       timerState: 'stop',
       breakPoints: [],
       freshMs: 20
@@ -121,6 +122,17 @@ export default {
     eventHub.$off('TL-resetTimer', this.resetTimer);
   },
   methods: {
+    canvasWrapperStyle() {
+      let indicator = this.$refs.timeIndicator;
+      let top = this.timelineHeight;
+      if (indicator) {
+        // console.log(indicator.$el.style.top);
+        top = (_.round(indicator.$el.offsetTop / this.timelineHeight) + 2) * this.timelineHeight;
+      }
+      return {
+        height: top + 'px'
+      }
+    },
     scrollTo(y, time) {
       var vm = this;
       TweenLite.to(vm.$el, time, {
@@ -129,8 +141,10 @@ export default {
     },
     handleResize(event) {
       let svg = document.getElementById('svg');
+      let timeline = document.querySelector('.timeline');
       this.svgWidth = svg.clientWidth;
       this.svgHeight = svg.clientHeight;
+      this.timelineHeight = timeline.clientHeight;
     },
     load: function(lines) {
       this.lines = lines;
@@ -178,7 +192,7 @@ export default {
       }
       this.setTimerState('pause');
     },
-    stopTimer(){
+    stopTimer() {
       if (this.intervalId) {
         this.intervalId = clearInterval(this.intervalId);
       }
@@ -195,8 +209,8 @@ export default {
     handleAutoScroll() {
       if (this.autoScroll) {
         let height = this.$el.offsetHeight;
-        let indicator = this.$refs.timeIndicator;
-        let top = indicator.top();
+        let indicator = this.$refs.timeIndicator.$el;
+        let top = indicator.offsetTop;
         let percent = (top - this.$el.scrollTop) / height;
         if (this.timerState === 'run' && !indicator.isHolding && percent > 0.7 && percent < 1) {
           this.scrollTo(top, 0.5);
@@ -207,22 +221,24 @@ export default {
       let offset = this.freshMs / 1000 / this.timeScale;
       let index = _.findIndex(this.breakPoints, (t) => time < t + offset && time > t);
       if (index != -1) {
-        if(this.breakMode === 'single-step')
+        if (this.breakMode === 'single-step')
           this.pauseTimer();
-        else if(this.breakMode == 'until-end'){
+        else if (this.breakMode == 'until-end') {
           this.stopTimer();
         }
       }
     },
-    setBreakPoints(mode){
+    setBreakPoints(mode) {
+      if (this.lines.length === 0) {
+        return;
+      }
       if (mode === 'single-step') {
         this.breakPoints = _.map(this.lines, _.property('endTime'));
         console.log(this.breakPoints);
       } else if (mode === 'until-end') {
         this.breakPoints = [_.maxBy(this.lines, 'endTime').endTime];
         console.log(this.breakPoints);
-      } else {
-        ;
+      } else {;
       }
     }
   },
@@ -234,12 +250,11 @@ export default {
     lines() {
       this.setBreakPoints(this.breakMode);
     },
-    breakMode(){
+    breakMode() {
       this.setBreakPoints(this.breakMode);
     },
     secInterScale() {
       if (this.autoScroll) {
-        console.log('hahaha');
         let height = this.$el.offsetHeight;
         let indicator = this.$refs.timeIndicator;
         let top = indicator.top();

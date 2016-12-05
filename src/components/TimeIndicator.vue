@@ -88,7 +88,7 @@ export default {
             needResume = true;
           }
           // vm.nowTimeCopy = vm.nowTime;
-          vm.isHolding = true;
+          vm.isHolding = true; // 外面的scroll会用到
         },
         onRelease(event) {
           if (needResume) {

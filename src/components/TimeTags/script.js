@@ -5,11 +5,6 @@ export default {
   components: {
     Tag
   },
-  data() {
-    return {
-
-    }
-  },
   props: {
     lines: {
       require: true
@@ -116,7 +111,7 @@ export default {
           lr: lineData.endTime,
           rl: lineData.begTime
         }
-      }[this.side][lineData.direct];
+      }[this.side][lineData.direct].toFixed(5);
     }
   }
 }
