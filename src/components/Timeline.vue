@@ -27,6 +27,7 @@
 </style>
 
 <template>
+<!-- <div class="timeline" style="timelineStyle"> -->
 <div class="timeline">
   <mu-row class="timeline-scroll">
     <TimeIndicator ref="timeIndicator" :now-time="nowTime" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
@@ -74,6 +75,9 @@ export default {
     },
     timeScale: {
       default: 100
+    },
+    autoScroll: {
+      default: true
     }
   },
   data() {
@@ -88,6 +92,7 @@ export default {
       svgHeight: 0,
       timeRangeHigh: -1,
       timerState: 'stop',
+      unwatchAutoScroll: undefined
     }
   },
   mounted() {
@@ -117,10 +122,15 @@ export default {
     eventHub.$off('TL-scrollTo', this.scrollTo);
   },
   methods: {
-    scrollTo(y) {
+    // timelineStyle() {
+    //   let height = Math.max(this.$refs.indica2000;
+    //   return {
+    //     height: height + 'px'
+    //   }
+    // },
+    scrollTo(y,time) {
       var vm = this;
-      console.log('y', y);
-      TweenLite.to(vm.$el, 0.5, {
+      TweenLite.to(vm.$el, time, {
         scrollTo: y,
         onStart: function() {
           vm.isScrolling = true;
@@ -214,18 +224,21 @@ export default {
       }
       this.nowTime = 0;
       this.setTimerState('stop');
-    }
+      this.scrollTo(0,0.2);
+    },
   },
   watch: {
     nowTime(newVal, oldVal) {
-      let height = this.$el.offsetHeight;
-      let top =  this.$refs.timeIndicator.top();
-      let percent = (top - this.$el.scrollTop)/height
-      if(percent > 0.7){
-        this.scrollTo(top);
+      if (this.autoScroll) {
+        let height = this.$el.offsetHeight;
+        let indicator = this.$refs.timeIndicator;
+        let top = indicator.top()
+        let percent = (top - this.$el.scrollTop) / height
+        if (this.timerState === 'run' && !indicator.isHolding && percent > 0.7) {
+          this.scrollTo(top,0.5);
+        }
       }
     }
   }
-
 }
 </script>

@@ -58,7 +58,7 @@ export default {
   },
   data() {
     return {
-      nowTimeCopy: 0,
+      // nowTimeCopy: 0,
       isHolding: false
     }
   },
@@ -87,7 +87,7 @@ export default {
             eventHub.$emit('TL-pauseTimer');
             needResume = true;
           }
-          vm.nowTimeCopy = vm.nowTime;
+          // vm.nowTimeCopy = vm.nowTime;
           vm.isHolding = true;
         },
         onRelease(event) {
@@ -117,25 +117,12 @@ export default {
       return time * this.secInterScale * this.svgWidth / 100;
     },
     top() {
-      let time;
-      if (this.isHolding) {
-        time = this.nowTimeCopy;
-      } else {
-        time = this.nowTime;
-      }
-      return this.time2y(time);
+      return this.time2y(this.nowTime);
     },
     hTimelineStyle() {
-      let top = this.top();
-      this.checkScoll(top);
       return {
-        top: top + 'px'
+        top: this.top() + 'px'
       };
-    },
-    checkScoll(y) {
-      if (y % this.svgHeight / this.svgHeight > 0.7) {
-        eventHub.emit('TL-scrollToTimeIndicator');
-      }
     }
   }
 }
