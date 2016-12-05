@@ -114,9 +114,9 @@ export default {
       return y * 100 / this.svgWidth / this.secInterScale;
     },
     time2y(time) {
-      return time  * this.secInterScale * this.svgWidth / 100;
+      return time * this.secInterScale * this.svgWidth / 100;
     },
-    top(){
+    top() {
       let time;
       if (this.isHolding) {
         time = this.nowTimeCopy;
@@ -126,9 +126,16 @@ export default {
       return this.time2y(time);
     },
     hTimelineStyle() {
+      let top = this.top();
+      this.checkScoll(top);
       return {
-        top: this.top() + 'px'
+        top: top + 'px'
       };
+    },
+    checkScoll(y) {
+      if (y % this.svgHeight / this.svgHeight > 0.7) {
+        eventHub.emit('TL-scrollToTimeIndicator');
+      }
     }
   }
 }

@@ -29,12 +29,12 @@
 <template>
 <div class="timeline">
   <mu-row class="timeline-scroll">
-    <TimeIndicator :now-time="nowTime"  :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
+    <TimeIndicator ref="timeIndicator" :now-time="nowTime" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
       <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
     </mu-col>
     <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper">
-      <Transcanvas :lines="lines"  :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
+      <Transcanvas :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
       <time-tags side="right" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
@@ -58,6 +58,8 @@
 import TimeTags from './TimeTags/index'
 import Transcanvas from './Transcanvas.js'
 import TimeIndicator from './TimeIndicator'
+import Scroll from 'ScrollToPlugin'
+import TweenLite from 'TweenLite'
 import _ from 'lodash'
 export default {
   name: 'Timeline',
@@ -66,12 +68,12 @@ export default {
     TimeTags,
     TimeIndicator
   },
-  props:{
-    secInterScale:{
-      default:300
+  props: {
+    secInterScale: {
+      default: 300
     },
-    timeScale:{
-      default:100
+    timeScale: {
+      default: 100
     }
   },
   data() {
@@ -85,7 +87,7 @@ export default {
       svgWidth: 0,
       svgHeight: 0,
       timeRangeHigh: -1,
-      timerState:'stop'
+      timerState: 'stop',
     }
   },
   mounted() {
@@ -103,6 +105,7 @@ export default {
     eventHub.$on('TL-resetTimer', this.resetTimer);
     eventHub.$on('TL-setTime', this.setTime);
     eventHub.$on('TL-setTimeRange', this.setTimeRange);
+    eventHub.$on('TL-scrollTo', this.scrollTo);
   },
   beforeDestroy() {
     eventHub.$off('TL-load', this.addline);
@@ -111,8 +114,22 @@ export default {
     eventHub.$off('TL-setTime', this.setTime);
     eventHub.$off('TL-resetTimer', this.resetTimer);
     eventHub.$off('TL-setTimeRange', this.setTimeRange);
+    eventHub.$off('TL-scrollTo', this.scrollTo);
   },
   methods: {
+    scrollTo(y) {
+      var vm = this;
+      console.log('y', y);
+      TweenLite.to(vm.$el, 0.5, {
+        scrollTo: y,
+        onStart: function() {
+          vm.isScrolling = true;
+        },
+        onComplete: function() {
+          vm.isScrolling = false;
+        }
+      });
+    },
     handleResize(event) {
       let svg = document.getElementById('svg');
       this.svgWidth = svg.clientWidth;
@@ -145,8 +162,8 @@ export default {
       let seconds = interval / 1000;
       this.nowTime += seconds / this.timeScale;
     },
-    setTimerState(state){
-      if(this.timerState != state){
+    setTimerState(state) {
+      if (this.timerState != state) {
         this.timerState = state;
         eventHub.$emit('timerStateChange', state);
       }
@@ -186,7 +203,7 @@ export default {
       this.setTimerState('pause');
     },
     setTime(time) {
-      if(time > this.timeRangeHigh){
+      if (time > this.timeRangeHigh) {
         this.timeRangeHigh = -1;
       }
       this.nowTime = time;
@@ -197,6 +214,16 @@ export default {
       }
       this.nowTime = 0;
       this.setTimerState('stop');
+    }
+  },
+  watch: {
+    nowTime(newVal, oldVal) {
+      let height = this.$el.offsetHeight;
+      let top =  this.$refs.timeIndicator.top();
+      let percent = (top - this.$el.scrollTop)/height
+      if(percent > 0.7){
+        this.scrollTo(top);
+      }
     }
   }
 
