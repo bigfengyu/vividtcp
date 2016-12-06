@@ -32,13 +32,13 @@
   <mu-row class="timeline-scroll">
     <TimeIndicator ref="timeIndicator" :now-time="nowTime" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
-      <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
+      <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth" :hoveredOrder="hoveredOrder"></time-tags>
     </mu-col>
     <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper" :style="canvasWrapperStyle()">
-      <Transcanvas :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :paddingTop="5" />
+      <Transcanvas :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :hoveredOrder="hoveredOrder" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
-      <time-tags side="right" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth"></time-tags>
+      <time-tags side="right" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth" :hoveredOrder="hoveredOrder"></time-tags>
     </mu-col>
   </mu-row>
 </div>
@@ -86,6 +86,7 @@ export default {
   data() {
     return {
       lines: [],
+      hoveredOrder: -1,
       nowTime: 0,
       intervalId: undefined,
       leftTags: [],
@@ -96,6 +97,7 @@ export default {
       timelineHeight: 0,
       timerState: 'stop',
       breakPoints: [],
+      lastBreakPointIndex: -1,
       freshMs: 20
     }
   },
@@ -113,6 +115,8 @@ export default {
     eventHub.$on('TL-pauseTimer', this.pauseTimer);
     eventHub.$on('TL-setTime', this.setTime);
     eventHub.$on('TL-resetTimer', this.resetTimer);
+    eventHub.$on('mouseoverMessage', this.setHoveredOrder);
+    eventHub.$on('mouseleaveMessage', this.clearHoveredOrder);
   },
   beforeDestroy() {
     eventHub.$off('TL-load', this.addline);
@@ -120,6 +124,8 @@ export default {
     eventHub.$off('TL-pauseTimer', this.pauseTimer);
     eventHub.$off('TL-setTime', this.setTime);
     eventHub.$off('TL-resetTimer', this.resetTimer);
+    eventHub.$off('mouseoverMessage', this.setHoveredOrder);
+    eventHub.$off('mouseleaveMessage', this.clearHoveredOrder);
   },
   methods: {
     canvasWrapperStyle() {
@@ -145,6 +151,12 @@ export default {
       this.svgWidth = svg.clientWidth;
       this.svgHeight = svg.clientHeight;
       this.timelineHeight = timeline.clientHeight;
+    },
+    setHoveredOrder(order) {
+      this.hoveredOrder = order;
+    },
+    clearHoveredOrder() {
+      this.hoveredOrder = -1;
     },
     load: function(lines) {
       this.lines = lines;
@@ -184,7 +196,7 @@ export default {
       this.intervalId = setInterval(function() {
         vm.freshTime(vm.freshMs);
       }, vm.freshMs);
-
+      this.hoveredOrder = -1; // clear single-step hover
     },
     pauseTimer() {
       if (this.intervalId) {
@@ -219,25 +231,41 @@ export default {
     },
     handleBreakPoint(time) {
       let offset = this.freshMs / 1000 / this.timeScale;
-      let index = _.findIndex(this.breakPoints, (t) => time < t + offset && time > t);
-      if (index != -1) {
-        if (this.breakMode === 'single-step')
-          this.pauseTimer();
-        else if (this.breakMode == 'until-end') {
-          this.stopTimer();
-        }
+      // let breakTime = _.find(this.breakPoints, (t) => time < t + offset && time > t);
+      let timeLeIndex = _.sortedIndex(this.breakPoints, time); // [index-1] < time <= [index]
+      // console.log(geIndex,time,this.breakPoints);
+      if(timeLeIndex === 0){
+        return;
       }
+      let bpIndex = timeLeIndex - 1;
+      if (bpIndex <= this.lastBreakPointIndex) {
+        return;
+      }
+      console.log('bpIndex',bpIndex);
+      let breakTime = this.breakPoints[bpIndex];
+      if (this.breakMode === 'single-step') {
+        this.nowTime = breakTime;
+        this.hoveredOrder = _.find(this.lines, {
+          'endTime': breakTime
+        }).order;
+        this.lastBreakPointIndex = bpIndex;
+        this.pauseTimer();
+      } else if (this.breakMode == 'until-end') {
+        this.nowTime = breakTime;
+        this.stopTimer();
+      }
+
     },
     setBreakPoints(mode) {
       if (this.lines.length === 0) {
         return;
       }
       if (mode === 'single-step') {
-        this.breakPoints = _.map(this.lines, _.property('endTime'));
-        // console.log(this.breakPoints);
+        this.breakPoints = _.sortBy(_.map(this.lines, _.property('endTime')));
+        console.log(this.breakPoints);
       } else if (mode === 'until-end') {
         this.breakPoints = [_.maxBy(this.lines, 'endTime').endTime];
-        // console.log(this.breakPoints);
+        console.log(this.breakPoints);
       } else {;
       }
     }

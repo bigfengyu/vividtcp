@@ -1,4 +1,4 @@
-import config from '../config.js'
+import '../assets/common.css'
 
 export default {
   name: "Transcanvas",
@@ -11,6 +11,9 @@ export default {
     },
     secInterScale: {
       required: true
+    },
+    hoveredOrder: {
+      default: -1
     }
   },
   functional: true,
@@ -23,11 +26,13 @@ export default {
       // console.log('context.props.nowTime', context.props.nowTime);
 
       if (lineData.begTime < context.props.nowTime) {
+        let isHovered = lineData.order === context.props.hoveredOrder;
         arrowLines.push(makeArrowLine(
           p,
           lineData,
           context.props.nowTime,
-          context.props.secInterScale));
+          context.props.secInterScale,
+          isHovered));
       }
     }
     // console.log(vnode.getTotalLength());
@@ -49,9 +54,9 @@ export default {
   }
 }
 
-function makeArrowLine(p, lineData, nowTime, secInterScale) {
+function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
   let endTime = lineData.endTime;
-  if(lineData.loseTime != -1 && lineData.loseTime < lineData.endTime){
+  if (lineData.loseTime != -1 && lineData.loseTime < lineData.endTime) {
     endTime = lineData.loseTime;
   }
 
@@ -78,6 +83,10 @@ function makeArrowLine(p, lineData, nowTime, secInterScale) {
     rotDegree = Math.atan(width / height) / Math.PI * 180 + 180;
   }
 
+  if (isHovered) {
+    strokeColor = '#777';
+  }
+
   let lineVNode = p('path', {
     class: 'line line' + lineData.order,
     attrs: {
@@ -100,6 +109,14 @@ function makeArrowLine(p, lineData, nowTime, secInterScale) {
 
   let groupVNode = p('g', {
     class: 'arrowline arrowline' + lineData.order,
+    on: {
+      mouseover() {
+        eventHub.$emit('mouseoverMessage', lineData.order);
+      },
+      mouseleave() {
+        eventHub.$emit('mouseleaveMessage', lineData.order);
+      }
+    }
   }, [
     lineVNode,
     arrowVNode

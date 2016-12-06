@@ -8,23 +8,25 @@
   position: absolute;
   width: 100%;
   line-height: 1;
-  border-bottom: 1px dotted #000000;
+  border-top: 1px dotted #000000;
   margin-top: 5px;
+  /*top:14px;*/
 }
 
 .horizontal-line:hover {
-  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
 }
 
 .horizontal-line:active {
-  border-bottom: 1px solid #ff4081;
+  border-top: 1px solid #ff4081;
 }
 
-.timeline {
+
+/*.timeline {
   height: calc(100vh - 288px);
   overflow-y: scroll;
   position: relative;
-}
+}*/
 </style>
 
 <template>
@@ -66,9 +68,9 @@ export default {
     nowTimeFixed() {
       if (this.nowTime < 0) {
         let zero = 0;
-        return zero.toFixed(4);
+        return zero.toFixed(5);
       } else {
-        return this.nowTime.toFixed(4);
+        return this.nowTime.toFixed(5);
       }
     }
   },
@@ -107,6 +109,7 @@ export default {
           eventHub.$emit('TL-setTime', Math.max(0, time));
         }
       });
+      vm.$el.style.top = "14px";
     })
   },
   methods: {
@@ -117,7 +120,7 @@ export default {
       return time * this.secInterScale * this.svgWidth / 100;
     },
     top() {
-      return this.time2y(this.nowTime);
+      return this.time2y(this.nowTime) + 14;
     },
     hTimelineStyle() {
       return {
