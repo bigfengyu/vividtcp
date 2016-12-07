@@ -1,6 +1,32 @@
 <style>
+
+#app{
+  height: 100vh;
+  /*overflow: hidden;*/
+}
+
 .top-panel {
-  height: 228px;
+  /*position: absolute;*/
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
+.fold-button {
+  float: right;
+  z-index: 5;
+}
+
+.top-panel :after,
+.menus :after {
+  clear: both;
+  content: '.';
+  display: block;
+  width: 0;
+  height: 0;
+  visibility: hidden;
 }
 
 .icons {
@@ -13,7 +39,7 @@
   text-align: center;
 }
 
-@media (max-width: 480px) {
+/*@media (max-width: 480px) {
   .timeline {
     height: calc(90vh - 179px);
   }
@@ -21,15 +47,16 @@
   .client-icon {
     height: 64px;
   }
-}
+}*/
 
 .controlbar {
-  width: 100%;
   background-color: #e8e8e8;
   /*border-top: 1px solid #ff4081;*/
   height: 60px;
   position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 99;
   padding: 0 calc((60px - 36px) / 2);
 }
@@ -67,16 +94,14 @@
 
 <template>
 <div id="app">
-  </mu-appbar>
   <div class="showtcp">
 
     <div class="top-panel">
-
       <mu-tabs :value="activeTab" @change="handleTabChange">
         <mu-tab value="basic" title="展示" />
         <mu-tab value="window" title="窗口" />
       </mu-tabs>
-      <div v-show="activeTab == 'basic'" class="basic-tab">
+      <div v-if="activeTab == 'basic'" class="tab basic-tab">
         <mu-row class="icons" gutter>
           <mu-col class="icon-col" desktop="50" tablet="50" width="50">
             <img class="client-icon" height="64" src="./assets/computer.png" />
@@ -87,9 +112,6 @@
             <p style="position: relative;bottom:0px">服务器(发送方)</p>
           </mu-col>
         </mu-row>
-
-        <mu-divider/>
-
         <mu-row class="sliders" gutter>
           <mu-col desktop="50" tablet="50" width="50" class="slidebar">
             <mu-row>
@@ -135,24 +157,21 @@
             </mu-row>
           </mu-col>
         </mu-row>
+        <mu-flat-button label="收起" @click="handleTabChange('hide')" class="fold-button" primary/>
       </div>
-
+      <mu-divider/>
     </div>
 
-    <mu-divider/>
 
-    <Timeline :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode">
-    </Timeline>
-
+    <Timeline :position-top="topPanelHeight" :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode"></Timeline>
 
     <div class="controlbar">
       <div class="btns">
-        <mu-raised-button label="装填" @click="load" class="btn" primary/>
+        <!-- <mu-raised-button label="装填" @click="load" class="btn" primary/> -->
         <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
         <mu-raised-button label="重置" @click="reset" class="btn" primary/>
       </div>
       <div style="float:right;">
-
         <div class="switchers" style="float:right;">
           <mu-switch label="自动滚动" v-model="autoScroll" class="switcher" />
         </div>
@@ -160,11 +179,10 @@
           <!-- <span style="display:inline-block;vertical-align:center;">暂停模式：</span> -->
           <mu-dropDown-menu :value="breakMode" @change="handleBreakModeChange" class="menu">
             <mu-menu-item value="until-end" title="画完" />
-            <mu-menu-item value="single-step" title="单次" />
+            <mu-menu-item value="single-step" title="单步" />
             <mu-menu-item value="infinate" title="无尽" />
           </mu-dropDown-menu>
         </div>
-
       </div>
 
     </div>
@@ -175,6 +193,7 @@
 <script>
 import Timeline from './components/Timeline'
 import Snap from 'snapsvg';
+import random from 'lodash/random';
 export default {
   name: 'app',
   components: {
@@ -185,6 +204,7 @@ export default {
       msgSegIndex: 0,
       activeTab: 'basic',
       lines: [],
+      topPanelHeight:0,
       timerState: 'stop',
       speedSlider: { // timeScale = 1000/value
         min: 5,
@@ -192,9 +212,9 @@ export default {
         value: 10
       },
       secInterSlider: {
-        min: 100,
-        max: 800,
-        value: 300
+        min: 300,
+        max: 1000,
+        value: 500
       },
       autoScroll: true,
       breakMode: 'until-end'
@@ -218,6 +238,11 @@ export default {
   created() {
     eventHub.$on('timerStateChange', this.handleTimerStateChange);
   },
+  mounted() {
+    this.load();
+    let vm = this;
+    this.handleTabChange(this.activeTab);
+  },
   beforeDestroy() {
     eventHub.$off('timerStateChange', this.handleTimerStateChange);
   },
@@ -227,20 +252,35 @@ export default {
     },
     handleTabChange(val) {
       this.activeTab = val;
+      var vm = this;
+      this.$nextTick(function(){
+        if(val === 'hide'){
+          vm.topPanelHeight = 49;
+        }else{
+          let tab = document.querySelector('.tab');
+          if(tab){
+            vm.topPanelHeight = tab.clientHeight + 49;
+          }else{
+            vm.topPanelHeight = 49;
+          }
+        }
+      });
     },
     handleTimerStateChange(state) {
       this.timerState = state;
     },
     load() {
       function populate() {
-        let lineNum = 5;
+        let lineNum = 100;
         let map = ['lr', 'rl'];
         let lines = [];
         for (let order = 1; order <= lineNum; ++order) {
+          let begTime = order * 0.02 + random(0.002, 0.010);
+          let endTime = begTime + random(0.010, 0.090);
           let line = {
             order: order,
-            begTime: (order - 1) * 0.02, // second
-            endTime: order * 0.02, // second
+            begTime: begTime, // second
+            endTime: endTime, // second
             loseTime: -1,
             direct: map[(order - 1) % 2],
           };
@@ -253,7 +293,7 @@ export default {
     toggle() {
       if (this.timerState === 'run') {
         eventHub.$emit('TL-pauseTimer');
-      } else if(this.timerState === 'stop'){
+      } else if (this.timerState === 'stop') {
         eventHub.$emit('TL-resetTimer');
         eventHub.$emit('TL-startTimer');
       } else {
@@ -261,10 +301,9 @@ export default {
       }
     },
     reset() {
+      this.load();
       eventHub.$emit('TL-resetTimer');
     }
-
   }
-
 }
 </script>

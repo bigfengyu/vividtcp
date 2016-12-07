@@ -1,8 +1,11 @@
 <style>
 .timeline {
-  height: calc(100vh - 288px);
-  overflow-y: scroll;
-  position: relative;
+  /*height: calc(100vh - 248px - 60px);*/
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  overflow: auto;
 }
 
 .canvas-wrapper {
@@ -28,14 +31,14 @@
 
 <template>
 <!-- <div class="timeline" style="timelineStyle"> -->
-<div class="timeline">
+<div class="timeline" :style="{top:positionTop + 'px'}">
   <mu-row class="timeline-scroll">
     <TimeIndicator ref="timeIndicator" :now-time="nowTime" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-left">
       <time-tags side="left" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth" :hoveredOrder="hoveredOrder"></time-tags>
     </mu-col>
     <mu-col desktop="50" tablet="70" width="70" class="canvas-wrapper" :style="canvasWrapperStyle()">
-      <Transcanvas :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :hoveredOrder="hoveredOrder" />
+      <Transcanvas id="svg" :lines="lines" :sec-inter-scale="secInterScale" :now-time="nowTime" :hoveredOrder="hoveredOrder" />
     </mu-col>
     <mu-col desktop="25" tablet="15" width="15" class="timeline-right">
       <time-tags side="right" :lines="lines" :now-time="nowTime" :sec-inter-scale="secInterScale" :svg-width="svgWidth" :hoveredOrder="hoveredOrder"></time-tags>
@@ -62,6 +65,7 @@ import TimeIndicator from './TimeIndicator'
 import Scroll from 'ScrollToPlugin'
 import TweenLite from 'TweenLite'
 import _ from 'lodash'
+import config from '../config'
 export default {
   name: 'Timeline',
   components: {
@@ -81,6 +85,9 @@ export default {
     },
     breakMode: { // 'single-step' 'until-end'  'infinate'
       default: 'until-end'
+    },
+    positionTop:{
+      default:249
     }
   },
   data() {
@@ -130,13 +137,15 @@ export default {
   methods: {
     canvasWrapperStyle() {
       let indicator = this.$refs.timeIndicator;
-      let top = this.timelineHeight;
+      let height = this.svgWidth * 2;
       if (indicator) {
         // console.log(indicator.$el.style.top);
-        top = (_.round(indicator.$el.offsetTop / this.timelineHeight) + 2) * this.timelineHeight;
+        height += (_.round(indicator.$el.offsetTop / this.timelineHeight) + 2) * this.timelineHeight;
+
       }
+      this.svgHeight = height - config.timelinePadTop;
       return {
-        height: top + 'px'
+        height: height + 'px'
       }
     },
     scrollTo(y, time) {
@@ -224,7 +233,7 @@ export default {
         let indicator = this.$refs.timeIndicator.$el;
         let top = indicator.offsetTop;
         let percent = (top - this.$el.scrollTop) / height;
-        if (this.timerState === 'run' && !indicator.isHolding && percent > 0.7 && percent < 1) {
+        if (this.timerState === 'run' && !indicator.isHolding && percent > 0.8 && percent < 1) {
           this.scrollTo(top, 0.5);
         }
       }
@@ -234,14 +243,14 @@ export default {
       // let breakTime = _.find(this.breakPoints, (t) => time < t + offset && time > t);
       let timeLeIndex = _.sortedIndex(this.breakPoints, time); // [index-1] < time <= [index]
       // console.log(geIndex,time,this.breakPoints);
-      if(timeLeIndex === 0){
+      if (timeLeIndex === 0) {
         return;
       }
       let bpIndex = timeLeIndex - 1;
       if (bpIndex <= this.lastBreakPointIndex) {
         return;
       }
-      console.log('bpIndex',bpIndex);
+      console.log('bpIndex', bpIndex);
       let breakTime = this.breakPoints[bpIndex];
       if (this.breakMode === 'single-step') {
         this.nowTime = breakTime;

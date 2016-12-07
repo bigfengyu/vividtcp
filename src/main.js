@@ -3,6 +3,7 @@ import App from './App'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import 'assets/icon.css'
+// import 'assets/material-icon.woff2'
 /* eslint-disable no-new  */
 
 import Transcanvas from './components/Transcanvas.js'

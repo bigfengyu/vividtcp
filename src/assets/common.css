@@ -1,0 +1,7 @@
+.arrowline:hover > .line {
+  stroke:#777
+}
+
+.arrowline:hover > .arrow {
+  fill:#777
+}
