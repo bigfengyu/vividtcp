@@ -74,6 +74,9 @@ export default {
     TimeIndicator
   },
   props: {
+    lines: {
+      required: true
+    },
     secInterScale: {
       default: 300
     },
@@ -92,7 +95,6 @@ export default {
   },
   data() {
     return {
-      lines: [],
       hoveredOrder: -1,
       nowTime: 0,
       intervalId: undefined,
@@ -116,7 +118,6 @@ export default {
     });
   },
   created() {
-    eventHub.$on('TL-load', this.load);
     eventHub.$on('TL-startTimer', this.startTimer);
     eventHub.$on('TL-pauseTimer', this.pauseTimer);
     eventHub.$on('TL-setTime', this.setTime);
@@ -125,7 +126,6 @@ export default {
     eventHub.$on('mouseleaveMessage', this.clearHoveredOrder);
   },
   beforeDestroy() {
-    eventHub.$off('TL-load', this.addline);
     eventHub.$off('TL-startTimer', this.startTimer);
     eventHub.$off('TL-pauseTimer', this.pauseTimer);
     eventHub.$off('TL-setTime', this.setTime);
@@ -164,9 +164,6 @@ export default {
     },
     clearHoveredOrder() {
       this.hoveredOrder = -1;
-    },
-    load: function(lines) {
-      this.lines = lines;
     },
     addline(line) {
       this.lines.push(line);
@@ -217,9 +214,13 @@ export default {
       }
       this.setTimerState('stop');
     },
-    setTime(time) { // 仅供信号槽使用，外界设置时间会使lastBreakPointIndex恢复初始值
+    setTime(time) {
+      // 仅供信号槽使用
+      // 设置时间会更新 lastBreakPointIndex 为当前时间前的中断点索引
       this.nowTime = time;
-      this.lastBreakPointIndex = -1;
+      this.lastBreakPointIndex = _.sortedIndexBy(this.breakPoints, {
+        time: time
+      }, 'time') - 1;
     },
     resetTimer() {
       this.stopTimer();
@@ -240,7 +241,7 @@ export default {
     },
     handleBreakPoint(time) {
       // 当拨动时间指示器的时候，不做断点处理
-      if(this.$refs.timeIndicator.isHolding){
+      if (this.$refs.timeIndicator.isHolding) {
         return;
       }
       // let offset = this.freshMs / 1000 / this.timeScale;

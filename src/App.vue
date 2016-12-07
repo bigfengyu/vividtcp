@@ -1,8 +1,10 @@
 <style>
-
-#app{
+#app {
   height: 100vh;
-  /*overflow: hidden;*/
+}
+
+.app-cut-mode {
+  cursor: url(./assets/cut_cursor.svg) 16 16,auto
 }
 
 .top-panel {
@@ -39,6 +41,7 @@
   text-align: center;
 }
 
+
 /*@media (max-width: 480px) {
   .timeline {
     height: calc(90vh - 179px);
@@ -70,9 +73,15 @@
   margin-top: calc((60px - 36px) / 2);
 }
 
-.controlbar .menu {
+
+/*.controlbar .menu {
   text-align: left;
-  /*margin-bottom: calc((60px - 48px) / 2);*/
+  /*margin-bottom: calc((60px - 48px) / 2);
+}*/
+
+.controlbar-right .cut-btn {
+  margin-top: calc((60px - 48px) / 2);
+  /*cursor: none!important;*/
 }
 
 .controlbar .switchers {
@@ -93,7 +102,7 @@
 </style>
 
 <template>
-<div id="app">
+<div id="app" :class="{'app-cut-mode':cutMode}">
   <div class="showtcp">
 
     <div class="top-panel">
@@ -166,12 +175,13 @@
     <Timeline :position-top="topPanelHeight" :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode"></Timeline>
 
     <div class="controlbar">
-      <div class="btns">
+      <div class="btns controlbar-left">
         <!-- <mu-raised-button label="装填" @click="load" class="btn" primary/> -->
         <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
         <mu-raised-button label="重置" @click="reset" class="btn" primary/>
       </div>
-      <div style="float:right;">
+      <div style="float:right;" class="controlbar-right">
+        <mu-icon-button :style="{color:cutMode?'black':'#777'}" icon="content_cut" class="cut-btn" @click="toggleCutMode()" />
         <div class="switchers" style="float:right;">
           <mu-switch label="自动滚动" v-model="autoScroll" class="switcher" />
         </div>
@@ -204,7 +214,8 @@ export default {
       msgSegIndex: 0,
       activeTab: 'basic',
       lines: [],
-      topPanelHeight:0,
+      cutMode: false,
+      topPanelHeight: 0,
       timerState: 'stop',
       speedSlider: { // timeScale = 1000/value
         min: 5,
@@ -247,20 +258,23 @@ export default {
     eventHub.$off('timerStateChange', this.handleTimerStateChange);
   },
   methods: {
+    toggleCutMode() {
+      this.cutMode = !this.cutMode;
+    },
     handleBreakModeChange(val) {
       this.breakMode = val;
     },
     handleTabChange(val) {
       this.activeTab = val;
       var vm = this;
-      this.$nextTick(function(){
-        if(val === 'hide'){
+      this.$nextTick(function() {
+        if (val === 'hide') {
           vm.topPanelHeight = 49;
-        }else{
+        } else {
           let tab = document.querySelector('.tab');
-          if(tab){
+          if (tab) {
             vm.topPanelHeight = tab.clientHeight + 49;
-          }else{
+          } else {
             vm.topPanelHeight = 49;
           }
         }
@@ -277,7 +291,7 @@ export default {
         for (let order = 1; order <= lineNum; ++order) {
           let begTime = order * 0.02 + random(0.002, 0.010);
           let endTime = begTime + random(0.010, 0.090);
-          let loseTime = random(0,1)=== 1 ? (endTime + begTime)/2 :-1;
+          let loseTime = random(0, 1) === 1 ? (endTime + begTime) / 2 : -1;
           // let loseTime = -1;
           let line = {
             order: order,
@@ -290,7 +304,7 @@ export default {
         }
         return lines;
       }
-      eventHub.$emit('TL-load', populate());
+      this.lines = populate();
     },
     toggle() {
       if (this.timerState === 'run') {

@@ -102,6 +102,16 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
     }
   });
 
+  // 透明线用于鼠标检测
+  let lineHoverVNode = p('path', {
+    class: 'hoverline hoverline' + lineData.order,
+    attrs: {
+      d: "M" + x1 + "," + y1 + "L" + x2 + "," + y2,
+      stroke: 'transparent',
+      'stroke-width': 5
+    }
+  });
+
   // 初始朝上的箭头
 
   let arrowVNode = p('path', {
@@ -139,6 +149,7 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
     }
   }, [
     lineVNode,
+    lineHoverVNode,
     endVNode
   ])
 
