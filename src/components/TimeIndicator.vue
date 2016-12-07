@@ -7,19 +7,41 @@
   z-index: 5;
   position: absolute;
   width: 100%;
-  line-height: 1;
+  height: 20px;
+}
+
+.horizontal-line {
+  pointer-events: none;
+}
+
+.horizontal-line .left,
+.horizontal-line .right {
+  pointer-events: auto;
+}
+
+.horizontal-line>.bottom-row>.center {
   border-top: 1px dotted #000000;
-  margin-top: 5px;
-  /*top:14px;*/
 }
 
-.horizontal-line:hover {
-  border-top: 1px solid #000000;
+.horizontal-line:hover>.bottom-row>.center {
+  border-top: 1px solid #03a9f4;
 }
 
-.horizontal-line:active {
-  border-top: 1px solid #ff4081;
+.horizontal-line>.bottom-row>.left,
+.horizontal-line>.bottom-row>.right {
+  border-top: 1px dotted #03a9f4;
 }
+
+.horizontal-line:hover>.bottom-row>.left,
+.horizontal-line:hover>.bottom-row>.right{
+  border-top: 1px solid #03a9f4;
+}
+
+
+.horizontal-line div {
+  height: 10px;
+}
+
 
 
 /*.timeline {
@@ -31,7 +53,19 @@
 
 <template>
 <div class="horizontal-line drabble" id="horizontal-line" :style="hTimelineStyle()">
-  <span class="time-indicator">{{nowTimeFixed}}</span>
+  <mu-row class="top-row">
+    <mu-col desktop="25" tablet="15" width="15" class="left">
+    </mu-col>
+    <mu-col desktop="50" tablet="70" width="70" class="center"></mu-col>
+    <mu-col desktop="25" tablet="15" width="15" class="right"></mu-col>
+  </mu-row>
+  <mu-row class="bottom-row">
+    <mu-col desktop="25" tablet="15" width="15" class="left">
+      <span class="time-indicator">{{nowTimeFixed}}</span>
+    </mu-col>
+    <mu-col desktop="50" tablet="70" width="70" class="center"></mu-col>
+    <mu-col desktop="25" tablet="15" width="15" class="right"></mu-col>
+  </mu-row>
 </div>
 </template>
 

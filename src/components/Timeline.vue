@@ -218,6 +218,9 @@ export default {
       // 仅供信号槽使用
       // 设置时间会更新 lastBreakPointIndex 为当前时间前的中断点索引
       this.nowTime = time;
+      if (this.timerState === 'stop') {
+        this.setTimerState('pause'); // 画完之后向上滚时间线
+      }
       this.lastBreakPointIndex = _.sortedIndexBy(this.breakPoints, {
         time: time
       }, 'time') - 1;
@@ -296,11 +299,15 @@ export default {
             'time');
       } else if (mode === 'until-end') {
         let endBreakPoint = _.reduce(this.lines, function(breakPoint, curr) {
-          if (curr.loseTime && curr.loseTime != -1 && curr.loseTime > breakPoint.time) {
-            return {
-              order: curr.order,
-              time: curr.loseTime
-            };
+          if (curr.loseTime) {
+            if (curr.loseTime === -1 || curr.loseTime <= breakPoint.time) {
+              return breakPoint;
+            } else {
+              return {
+                order: curr.order,
+                time: curr.loseTime
+              };
+            }
           } else if (curr.endTime > breakPoint.time) {
             return {
               order: curr.order,
@@ -311,7 +318,7 @@ export default {
           }
         }, {
           order: 0,
-          time: -1
+          time: 0
         });
         this.breakPoints = [endBreakPoint];
         console.log(this.breakPoints);
