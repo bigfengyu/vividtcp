@@ -55,16 +55,22 @@ export default {
 }
 
 function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
-  let endTime = lineData.endTime;
-  if (lineData.loseTime != -1 && lineData.loseTime < lineData.endTime) {
-    endTime = lineData.loseTime;
-  }
+  let maxPercentage = 1;
+  let isLosed = false;
 
   let strokeColor, x1, x2, y1, y2, rotDegree;
-  let timeInterval = endTime - lineData.begTime;
-  let percentage = Math.min(1, (nowTime - lineData.begTime) / timeInterval);
+  let timeInterval = lineData.endTime - lineData.begTime;
+
+  if (lineData.loseTime && lineData.loseTime != -1 && lineData.loseTime <= nowTime) {
+    isLosed = true;
+    maxPercentage = (lineData.loseTime - lineData.begTime) / timeInterval;
+  }
+
+  // console.log('maxPercentage',maxPercentage);
+
+  let percentage = Math.min(maxPercentage, (nowTime - lineData.begTime) / timeInterval);
   let width = 100;
-  let height = (endTime - lineData.begTime) * secInterScale;
+  let height = (lineData.endTime - lineData.begTime) * secInterScale;
 
   y1 = lineData.begTime * secInterScale;
   y2 = y1 + height * percentage;
@@ -97,6 +103,7 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
   });
 
   // 初始朝上的箭头
+
   let arrowVNode = p('path', {
     class: 'arrow arrow' + lineData.order,
     attrs: {
@@ -106,6 +113,19 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
       transform: 'translate(' + x2 + ',' + y2 + ') rotate(' + rotDegree + ')'
     }
   });
+  // 叉号
+  let XVNode = p('path', {
+    class: 'arrow arrow' + lineData.order,
+    attrs: {
+      d: 'M-1 -1 L1 1 M1 -1 L-1 1 z',
+      stroke: strokeColor,
+      transform: 'translate(' + x2 + ',' + y2 + ') rotate(' + rotDegree + ')',
+      'stroke-width': 0.5
+    }
+  });
+
+  let endVNode = isLosed ? XVNode : arrowVNode;
+
 
   let groupVNode = p('g', {
     class: 'arrowline arrowline' + lineData.order,
@@ -119,7 +139,7 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
     }
   }, [
     lineVNode,
-    arrowVNode
+    endVNode
   ])
 
   return groupVNode;

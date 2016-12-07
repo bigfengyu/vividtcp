@@ -53,7 +53,7 @@
 //      order:0
 //      begTime:3,  // second
 //      endTime:4,  // second
-//      loseTime:0
+//      loseTime:
 //       direct:'lr'
 //      y1:undefined
 //      y2:undefined
@@ -86,8 +86,8 @@ export default {
     breakMode: { // 'single-step' 'until-end'  'infinate'
       default: 'until-end'
     },
-    positionTop:{
-      default:249
+    positionTop: {
+      default: 249
     }
   },
   data() {
@@ -101,7 +101,6 @@ export default {
       preventOrderSet: {},
       svgWidth: 0,
       svgHeight: 0,
-      timelineHeight: 0,
       timerState: 'stop',
       breakPoints: [],
       lastBreakPointIndex: -1,
@@ -127,7 +126,7 @@ export default {
   },
   beforeDestroy() {
     eventHub.$off('TL-load', this.addline);
-    eventHub.$off('TL-startTimer', this.setTime);
+    eventHub.$off('TL-startTimer', this.startTimer);
     eventHub.$off('TL-pauseTimer', this.pauseTimer);
     eventHub.$off('TL-setTime', this.setTime);
     eventHub.$off('TL-resetTimer', this.resetTimer);
@@ -140,7 +139,8 @@ export default {
       let height = this.svgWidth * 2;
       if (indicator) {
         // console.log(indicator.$el.style.top);
-        height += (_.round(indicator.$el.offsetTop / this.timelineHeight) + 2) * this.timelineHeight;
+        let timelineHeight = this.$el.offsetHeight
+        height += (_.round(indicator.$el.offsetTop / timelineHeight) + 2) * timelineHeight;
 
       }
       this.svgHeight = height - config.timelinePadTop;
@@ -156,10 +156,8 @@ export default {
     },
     handleResize(event) {
       let svg = document.getElementById('svg');
-      let timeline = document.querySelector('.timeline');
       this.svgWidth = svg.clientWidth;
       this.svgHeight = svg.clientHeight;
-      this.timelineHeight = timeline.clientHeight;
     },
     setHoveredOrder(order) {
       this.hoveredOrder = order;
@@ -219,12 +217,14 @@ export default {
       }
       this.setTimerState('stop');
     },
-    setTime(time) {
+    setTime(time) { // 仅供信号槽使用，外界设置时间会使lastBreakPointIndex恢复初始值
       this.nowTime = time;
+      this.lastBreakPointIndex = -1;
     },
     resetTimer() {
       this.stopTimer();
       this.nowTime = 0;
+      this.lastBreakPointIndex = -1;
       this.scrollTo(0, 0.2);
     },
     handleAutoScroll() {
@@ -239,43 +239,84 @@ export default {
       }
     },
     handleBreakPoint(time) {
-      let offset = this.freshMs / 1000 / this.timeScale;
+      // 当拨动时间指示器的时候，不做断点处理
+      if(this.$refs.timeIndicator.isHolding){
+        return;
+      }
+      // let offset = this.freshMs / 1000 / this.timeScale;
       // let breakTime = _.find(this.breakPoints, (t) => time < t + offset && time > t);
-      let timeLeIndex = _.sortedIndex(this.breakPoints, time); // [index-1] < time <= [index]
+      let timeLeIndex = _.sortedIndexBy(this.breakPoints, {
+        time: time
+      }, 'time'); // [index-1] < time <= [index]
       // console.log(geIndex,time,this.breakPoints);
       if (timeLeIndex === 0) {
         return;
       }
-      let bpIndex = timeLeIndex - 1;
-      if (bpIndex <= this.lastBreakPointIndex) {
+      let breakPointIndex = timeLeIndex - 1;
+      // 避免反复暂停，向上拖动过该把this.lastBreakPointIndex变成-1
+      if (breakPointIndex <= this.lastBreakPointIndex) {
         return;
       }
-      console.log('bpIndex', bpIndex);
-      let breakTime = this.breakPoints[bpIndex];
+      // console.log('breakPointIndex', breakPointIndex);
+      let breakPoint = this.breakPoints[breakPointIndex];
+      console.log('breakTime:', breakPoint.time);
+      console.log('nowTime:', time);
       if (this.breakMode === 'single-step') {
-        this.nowTime = breakTime;
-        this.hoveredOrder = _.find(this.lines, {
-          'endTime': breakTime
-        }).order;
-        this.lastBreakPointIndex = bpIndex;
+        this.hoveredOrder = breakPoint.order;
+        this.lastBreakPointIndex = breakPointIndex;
         this.pauseTimer();
+        // this.$refs.Transcanvas.$forceUpdate();
       } else if (this.breakMode == 'until-end') {
-        this.nowTime = breakTime;
+        this.nowTime = breakPoint.time;
         this.stopTimer();
       }
-
     },
     setBreakPoints(mode) {
       if (this.lines.length === 0) {
         return;
       }
       if (mode === 'single-step') {
-        this.breakPoints = _.sortBy(_.map(this.lines, _.property('endTime')));
-        console.log(this.breakPoints);
+        this.breakPoints =
+          _.sortBy(
+            _.map(this.lines,
+              function(lineData) {
+                if (lineData.loseTime && lineData.loseTime != -1) {
+                  return {
+                    order: lineData.order,
+                    time: lineData.loseTime
+                  };
+                } else {
+                  return {
+                    order: lineData.order,
+                    time: lineData.endTime
+                  };
+                }
+              }),
+            'time');
       } else if (mode === 'until-end') {
-        this.breakPoints = [_.maxBy(this.lines, 'endTime').endTime];
+        let endBreakPoint = _.reduce(this.lines, function(breakPoint, curr) {
+          if (curr.loseTime && curr.loseTime != -1 && curr.loseTime > breakPoint.time) {
+            return {
+              order: curr.order,
+              time: curr.loseTime
+            };
+          } else if (curr.endTime > breakPoint.time) {
+            return {
+              order: curr.order,
+              time: curr.endTime
+            };
+          } else {
+            return breakPoint;
+          }
+        }, {
+          order: 0,
+          time: -1
+        });
+        this.breakPoints = [endBreakPoint];
         console.log(this.breakPoints);
-      } else {;
+      } else {
+        // infinate
+        this.breakPoints = [];
       }
     }
   },

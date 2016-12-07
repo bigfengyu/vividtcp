@@ -77,14 +77,20 @@ export default {
       return pos;
     },
     needShow(lineData) {
+      let isLosed = false;
+      if(lineData.loseTime && lineData.loseTime != -1){
+        isLosed = true;
+      }
       if (this.side === 'left') {
         if (lineData.direct === 'lr') {
           return lineData.begTime < this.nowTime;
-        } else {
+        } else  {
+          if(isLosed) return false;
           return lineData.endTime <= this.nowTime;
         }
       } else {
         if (lineData.direct === 'lr') {
+          if(isLosed) return false;
           return lineData.endTime <= this.nowTime;
         } else {
           return lineData.begTime < this.nowTime;

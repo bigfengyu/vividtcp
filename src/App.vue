@@ -271,17 +271,19 @@ export default {
     },
     load() {
       function populate() {
-        let lineNum = 100;
+        let lineNum = 20;
         let map = ['lr', 'rl'];
         let lines = [];
         for (let order = 1; order <= lineNum; ++order) {
           let begTime = order * 0.02 + random(0.002, 0.010);
           let endTime = begTime + random(0.010, 0.090);
+          let loseTime = random(0,1)=== 1 ? (endTime + begTime)/2 :-1;
+          // let loseTime = -1;
           let line = {
             order: order,
             begTime: begTime, // second
             endTime: endTime, // second
-            loseTime: -1,
+            loseTime: loseTime,
             direct: map[(order - 1) % 2],
           };
           lines.push(line);
