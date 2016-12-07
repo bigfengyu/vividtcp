@@ -299,8 +299,8 @@ export default {
             'time');
       } else if (mode === 'until-end') {
         let endBreakPoint = _.reduce(this.lines, function(breakPoint, curr) {
-          if (curr.loseTime) {
-            if (curr.loseTime === -1 || curr.loseTime <= breakPoint.time) {
+          if (curr.loseTime && curr.loseTime != -1 ) {
+            if (curr.loseTime <= breakPoint.time) {
               return breakPoint;
             } else {
               return {
