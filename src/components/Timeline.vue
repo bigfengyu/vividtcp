@@ -159,12 +159,12 @@ export default {
       if (this.cutMode) {
         let x = event.layerX;
         let percentage = x / this.svgWidth;
-        if(lineData.direct === 'rl'){
+        if (lineData.direct === 'rl') {
           percentage = 1 - percentage;
         }
         let time = lineData.begTime + (lineData.endTime - lineData.begTime) * percentage;
         this.nowTime = time;
-        eventHub.$emit('makeLineLose',lineData.order,time);
+        eventHub.$emit('makeLineLose', lineData.order, time);
       }
     },
     handleResize(event) {
@@ -265,7 +265,6 @@ export default {
       let timeLeIndex = _.sortedIndexBy(this.breakPoints, {
         time: time
       }, 'time'); // [index-1] < time <= [index]
-      // console.log(geIndex,time,this.breakPoints);
       if (timeLeIndex === 0) {
         return;
       }
@@ -274,15 +273,15 @@ export default {
       if (breakPointIndex <= this.lastBreakPointIndex) {
         return;
       }
-      // console.log('breakPointIndex', breakPointIndex);
       let breakPoint = this.breakPoints[breakPointIndex];
-      console.log('breakTime:', breakPoint.time);
-      console.log('nowTime:', time);
       if (this.breakMode === 'single-step') {
         this.hoveredOrder = breakPoint.order;
         this.lastBreakPointIndex = breakPointIndex;
-        this.pauseTimer();
-        // this.$refs.Transcanvas.$forceUpdate();
+        if (breakPointIndex === this.breakPoints.length - 1) {
+          this.stopTimer()
+        } else {
+          this.pauseTimer();
+        }
       } else if (this.breakMode == 'until-end') {
         this.nowTime = breakPoint.time;
         this.stopTimer();

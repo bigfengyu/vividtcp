@@ -3,12 +3,11 @@
   height: 100vh;
 }
 
-.app-cut-mode {
-  cursor: url(./assets/cut_cursor.svg) 16 16,auto
+.timeline-cut-mode {
+  cursor: url(./assets/cut_cursor.svg) 12 12,auto
 }
 
 .top-panel {
-  /*position: absolute;*/
   position: fixed;
   top: 0;
   left: 0;
@@ -41,20 +40,8 @@
   text-align: center;
 }
 
-
-/*@media (max-width: 480px) {
-  .timeline {
-    height: calc(90vh - 179px);
-  }
-  .server-icon,
-  .client-icon {
-    height: 64px;
-  }
-}*/
-
 .controlbar {
   background-color: #e8e8e8;
-  /*border-top: 1px solid #ff4081;*/
   height: 60px;
   position: fixed;
   bottom: 0;
@@ -74,14 +61,8 @@
 }
 
 
-/*.controlbar .menu {
-  text-align: left;
-  /*margin-bottom: calc((60px - 48px) / 2);
-}*/
-
 .controlbar-right .cut-btn {
   margin-top: calc((60px - 48px) / 2);
-  /*cursor: none!important;*/
 }
 
 .controlbar .switchers {
@@ -102,7 +83,7 @@
 </style>
 
 <template>
-<div id="app" :class="{'app-cut-mode':cutMode}">
+<div id="app">
   <div class="showtcp">
 
     <div class="top-panel">
@@ -146,7 +127,6 @@
           <mu-col desktop="50" tablet="50" width="50" class="slidebar">
             <mu-row>
               <mu-col desktop="20" tablet="20" width="5">
-
               </mu-col>
               <mu-col desktop="60" tablet="60" width="90">
                 <mu-slider v-model="secInterSlider.value" :min="secInterSlider.min" :max="secInterSlider.max" style="margin-bottom:0" />
@@ -171,22 +151,19 @@
       <mu-divider/>
     </div>
 
-
-    <Timeline :position-top="topPanelHeight" :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode"></Timeline>
+    <Timeline :class="{'timeline-cut-mode':cutMode}" :cutMode="cutMode" :position-top="topPanelHeight" :lines="lines" :secInterScale="secInterScale" :timeScale="timeScale" :autoScroll="autoScroll" :breakMode="breakMode"></Timeline>
 
     <div class="controlbar">
       <div class="btns controlbar-left">
-        <!-- <mu-raised-button label="装填" @click="load" class="btn" primary/> -->
         <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
         <mu-raised-button label="重置" @click="reset" class="btn" primary/>
       </div>
       <div style="float:right;" class="controlbar-right">
-        <mu-icon-button :style="{color:cutMode?'black':'#777'}" icon="content_cut" class="cut-btn" @click="toggleCutMode()" />
+        <mu-icon-button :style="{color:cutMode?'#880000':'#777'}" icon="content_cut" class="cut-btn" @click="toggleCutMode()" />
         <div class="switchers" style="float:right;">
           <mu-switch label="自动滚动" v-model="autoScroll" class="switcher" />
         </div>
         <div class="menus" style="float:right;">
-          <!-- <span style="display:inline-block;vertical-align:center;">暂停模式：</span> -->
           <mu-dropDown-menu :value="breakMode" @change="handleBreakModeChange" class="menu">
             <mu-menu-item value="until-end" title="画完" />
             <mu-menu-item value="single-step" title="单步" />
@@ -194,7 +171,6 @@
           </mu-dropDown-menu>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -203,7 +179,8 @@
 <script>
 import Timeline from './components/Timeline'
 import Snap from 'snapsvg';
-import random from 'lodash/random';
+import _random from 'lodash/random';
+import _map from 'lodash/map'
 export default {
   name: 'app',
   components: {
@@ -248,6 +225,7 @@ export default {
   },
   created() {
     eventHub.$on('timerStateChange', this.handleTimerStateChange);
+    eventHub.$on('makeLineLose', this.makeLineLose);
   },
   mounted() {
     this.load();
@@ -256,6 +234,7 @@ export default {
   },
   beforeDestroy() {
     eventHub.$off('timerStateChange', this.handleTimerStateChange);
+    eventHub.$off('makeLineLose', this.makeLineLose);
   },
   methods: {
     toggleCutMode() {
@@ -283,15 +262,25 @@ export default {
     handleTimerStateChange(state) {
       this.timerState = state;
     },
+    makeLineLose(lineOrder,loseTime){
+      this.lines = _map(this.lines,function(l){
+        if(l.order === lineOrder){
+          l.loseTime = loseTime;
+          return l;
+        }else{
+          return l;
+        }
+      });
+    },
     load() {
       function populate() {
         let lineNum = 20;
         let map = ['lr', 'rl'];
         let lines = [];
         for (let order = 1; order <= lineNum; ++order) {
-          let begTime = order * 0.02 + random(0.002, 0.010);
-          let endTime = begTime + random(0.010, 0.090);
-          let loseTime = random(0, 1) === 1 ? (endTime + begTime) / 2 : -1;
+          let begTime = (order-1) * 0.02;
+          let endTime = begTime + _random(0.010, 0.090);
+          let loseTime = _random(0, 1) === 1 ? (endTime + begTime) / 2 : -1;
           // let loseTime = -1;
           let line = {
             order: order,
