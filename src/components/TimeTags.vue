@@ -1,19 +1,29 @@
+<style scoped>
 
+.vtags .tag {
+  position: absolute;
+  transition: all 0.5s;
+}
+
+.timetags-left-enter,
+.timetags-left-leave-active {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.timetags-right-enter,
+.timetags-right-leave-active {
+  opacity: 0;
+  transform: translateX(20px);
+}
+</style>
 
 <template>
 <div class="vtags">
-  <Tag
-  v-for="(item,index) in lines"
-  v-if="needShow(item)"
-  :class="['tag'+item.order]"
-  :text="text(item)"
-  :color="color(item)"
-  :direct="direct"
-  :style="style(item)"
-  @mouseover.native="onMouseover(item)"
-  @mouseleave.native="onMouseleave(item)"
-  >
-  </Tag>
+  <transition-group :name="'timetags-'+side">
+    <Tag v-for="(item,index) in lines" v-if="needShow(item)" :key="item.order" :class="['tag'+item.order]" :text="text(item)" :color="color(item)" :direct="direct" :style="style(item)" @mouseover.native="onMouseover(item)" @mouseleave.native="onMouseleave(item)">
+    </Tag>
+  </transition-group>
 </div>
 </template>
 
@@ -78,19 +88,19 @@ export default {
     },
     needShow(lineData) {
       let isLosed = false;
-      if(lineData.loseTime && lineData.loseTime != -1){
+      if (lineData.loseTime && lineData.loseTime != -1) {
         isLosed = true;
       }
       if (this.side === 'left') {
         if (lineData.direct === 'lr') {
           return lineData.begTime < this.nowTime;
-        } else  {
-          if(isLosed) return false;
+        } else {
+          if (isLosed) return false;
           return lineData.endTime <= this.nowTime;
         }
-      } else {
+      } else if (this.side === 'right') {
         if (lineData.direct === 'lr') {
-          if(isLosed) return false;
+          if (isLosed) return false;
           return lineData.endTime <= this.nowTime;
         } else {
           return lineData.begTime < this.nowTime;
@@ -112,9 +122,7 @@ export default {
       return this.svgWidth * y / 100;
     },
     style(lineData) {
-      var style = {
-        position: 'absolute'
-      };
+      var style = {};
       var halfHeightOfTag = 12;
       style['top'] =
         this.calcY(lineData, this.lineFinishedSVGPos(lineData)) -
@@ -127,27 +135,27 @@ export default {
       if (lineData.order === this.hoveredOrder) {
         style['z-index'] = 4;
       }
-      // console.log('style', style);
       return style;
     },
     text(lineData) {
+      let precision = 5;
       return {
         left: {
-          lr: lineData.begTime,
-          rl: lineData.endTime
+          lr: 'S' + lineData.order + ' - ' + lineData.begTime.toFixed(precision),
+          rl: 'R' + lineData.order + ' - ' + lineData.endTime.toFixed(precision)
         },
         right: {
-          lr: lineData.endTime,
-          rl: lineData.begTime
+          lr: 'R' + lineData.order + ' - ' + lineData.endTime.toFixed(precision),
+          rl: 'S' + lineData.order + ' - ' + lineData.begTime.toFixed(precision),
         }
-      }[this.side][lineData.direct].toFixed(5);
+      }[this.side][lineData.direct];
     },
     color(lineData) {
       if (lineData.order === this.hoveredOrder) {
         return 'grey';
       } else if (this.side === 'left') {
         return 'green';
-      } else {
+      } else if (this.side === 'right') {
         return 'red';
       }
     }

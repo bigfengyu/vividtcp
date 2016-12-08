@@ -1,5 +1,5 @@
 <style>
-.tags-lr a {
+.tag-lr a {
   display: inline-block;
   height: 24px;
   line-height: 23px;
@@ -22,7 +22,7 @@
   font-weight: bold;
 }
 
-.tags-lr a:before {
+.tag-lr a:before {
   content: "";
   position: absolute;
   top: 10px;
@@ -39,7 +39,7 @@
   box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
 }
 
-.tags-lr a:after {
+.tag-lr a:after {
   content: "";
   position: absolute;
   top: 0;
@@ -51,7 +51,7 @@
   border-width: 12px 0 12px 12px;
 }
 
-.tags-rl a {
+.tag-rl a {
   display: inline-block;
   height: 24px;
   line-height: 24px;
@@ -73,7 +73,7 @@
   font-weight: bold;
 }
 
-.tags-rl a:before {
+.tag-rl a:before {
   content: "";
   position: absolute;
   top: 0;
@@ -85,7 +85,7 @@
   border-width: 12px 12px 12px 0;
 }
 
-.tags-rl a:after {
+.tag-rl a:after {
   content: "";
   position: absolute;
   top: 10px;
@@ -101,70 +101,70 @@
   box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.4);
 }
 
-.tags-lr a.green {
+.tag-lr a.green {
   background: #66bb6a;
 }
 
-.tags-lr a.green:after {
+.tag-lr a.green:after {
   border-color: transparent transparent transparent #66bb6a
 }
 
-.tags-rl a.green {
+.tag-rl a.green {
   background: #66bb6a;
 }
 
-.tags-rl a.green:before {
+.tag-rl a.green:before {
   border-color: transparent #66bb6a transparent transparent
 }
 
-.tags-lr a.red {
+.tag-lr a.red {
   background: #880000;
 }
 
-.tags-lr a.red:after {
+.tag-lr a.red:after {
   border-color: transparent transparent transparent #880000
 }
 
-.tags-rl a.red {
+.tag-rl a.red {
   background: #880000;
 }
 
-.tags-rl a.red:before {
+.tag-rl a.red:before {
   border-color: transparent #880000 transparent transparent
 }
 
-.tags-lr a.grey {
+.tag-lr a.grey {
   background: #777;
 }
 
-.tags-lr a.grey:after {
+.tag-lr a.grey:after {
   border-color: transparent transparent transparent #777
 }
 
-.tags-rl a.grey {
+.tag-rl a.grey {
   background: #777;
 }
 
-.tags-rl a.grey:before {
+.tag-rl a.grey:before {
   border-color: transparent #777 transparent transparent
 }
 
 
-/*.tags a:hover {
+/*.tag a:hover {
     background-color: #777;
 }
 
-.tags-lr a:hover:after {
+.tag-lr a:hover:after {
     border-color: transparent transparent transparent #777;
 }
 
-.tags-rl a:hover:before {
+.tag-rl a:hover:before {
     border-color: transparent #777 transparent transparent;
 }*/
 </style>
 
 <template>
-<div class="tags" :class="tagClass">
+<div class="tag" :class="tagClass">
   <a :class="[color]">{{text}}</a>
 </div>
 </template>
@@ -185,7 +185,7 @@ export default {
   },
   computed: {
     tagClass: function() {
-      var className = 'tags-' + this.direct;
+      var className = 'tag-' + this.direct;
       return className;
     }
   }
