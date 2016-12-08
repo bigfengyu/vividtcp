@@ -1,6 +1,5 @@
 <style>
 .timeline {
-  /*height: calc(100vh - 248px - 60px);*/
   position: fixed;
   bottom: 60px;
   left: 0;
@@ -16,11 +15,7 @@
 .timeline-left,
 .canvas-wrapper,
 .timeline-right {
-  /*height: 2000px;*/
   position: relative;
-}
-
-.canvas-wrapper {
   padding-top: 20px;
 }
 
@@ -30,7 +25,6 @@
 </style>
 
 <template>
-<!-- <div class="timeline" style="timelineStyle"> -->
 <div class="timeline" :style="{top:positionTop + 'px'}">
   <mu-row class="timeline-scroll">
     <TimeIndicator ref="timeIndicator" :now-time="nowTime" :sec-inter-scale="secInterScale" :timer-state="timerState" :svg-width="svgWidth" :svg-height="svgHeight"></TimeIndicator>
@@ -91,6 +85,11 @@ export default {
     },
     positionTop: {
       default: 249
+    },
+    cutMode: {
+      default: false
+
+
     }
   },
   data() {
@@ -124,6 +123,7 @@ export default {
     eventHub.$on('TL-resetTimer', this.resetTimer);
     eventHub.$on('mouseoverMessage', this.setHoveredOrder);
     eventHub.$on('mouseleaveMessage', this.clearHoveredOrder);
+    eventHub.$on('clickMessage', this.handleClickMessage);
   },
   beforeDestroy() {
     eventHub.$off('TL-startTimer', this.startTimer);
@@ -132,6 +132,7 @@ export default {
     eventHub.$off('TL-resetTimer', this.resetTimer);
     eventHub.$off('mouseoverMessage', this.setHoveredOrder);
     eventHub.$off('mouseleaveMessage', this.clearHoveredOrder);
+    eventHub.$off('clickMessage', this.handleClickMessage);
   },
   methods: {
     canvasWrapperStyle() {
@@ -153,6 +154,18 @@ export default {
       TweenLite.to(vm.$el, time, {
         scrollTo: y
       });
+    },
+    handleClickMessage(event, lineData) {
+      if (this.cutMode) {
+        let x = event.layerX;
+        let percentage = x / this.svgWidth;
+        if(lineData.direct === 'rl'){
+          percentage = 1 - percentage;
+        }
+        let time = lineData.begTime + (lineData.endTime - lineData.begTime) * percentage;
+        this.nowTime = time;
+        eventHub.$emit('makeLineLose',lineData.order,time);
+      }
     },
     handleResize(event) {
       let svg = document.getElementById('svg');
@@ -299,7 +312,7 @@ export default {
             'time');
       } else if (mode === 'until-end') {
         let endBreakPoint = _.reduce(this.lines, function(breakPoint, curr) {
-          if (curr.loseTime && curr.loseTime != -1 ) {
+          if (curr.loseTime && curr.loseTime != -1) {
             if (curr.loseTime <= breakPoint.time) {
               return breakPoint;
             } else {

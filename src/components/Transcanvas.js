@@ -145,6 +145,9 @@ function makeArrowLine(p, lineData, nowTime, secInterScale, isHovered) {
       },
       mouseleave() {
         eventHub.$emit('mouseleaveMessage', lineData.order);
+      },
+      click(event) {
+        eventHub.$emit('clickMessage', event,lineData);
       }
     }
   }, [

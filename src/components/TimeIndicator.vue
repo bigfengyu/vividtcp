@@ -143,18 +143,18 @@ export default {
           eventHub.$emit('TL-setTime', Math.max(0, time));
         }
       });
-      vm.$el.style.top = "14px";
+      vm.$el.style.top = "10px";
     })
   },
   methods: {
     y2time(y) {
-      return y * 100 / this.svgWidth / this.secInterScale;
+      return (y - 10) * 100 / this.svgWidth / this.secInterScale;
     },
     time2y(time) {
-      return time * this.secInterScale * this.svgWidth / 100;
+      return time * this.secInterScale * this.svgWidth / 100 + 10;
     },
     top() {
-      return this.time2y(this.nowTime) + 14;
+      return this.time2y(this.nowTime);
     },
     hTimelineStyle() {
       return {
