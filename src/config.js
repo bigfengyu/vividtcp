@@ -1,3 +1,3 @@
 export default {
-  timelinePadTop: 20
+  timelinePadTop: 20,
 }

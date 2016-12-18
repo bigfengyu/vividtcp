@@ -132,6 +132,8 @@ export default {
             needResume = false;
           }
           vm.isHolding = false;
+          var time = vm.y2time(this.y);
+          eventHub.$emit('backTime',time);
         },
         onDrag(event) {
           // console.log('drag');

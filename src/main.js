@@ -1,12 +1,15 @@
 import Vue from 'vue'
-import App from './App'
+import App from './AbstrackApp.vue'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import 'assets/icon.css'
+import 'assets/common.css'
 // import 'assets/material-icon.woff2'
 /* eslint-disable no-new  */
 
 import Transcanvas from './components/Transcanvas.js'
+
+// import './tcp.js'
 
 window.eventHub = new Vue();
 

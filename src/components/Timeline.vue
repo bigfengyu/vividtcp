@@ -105,7 +105,7 @@ export default {
       timerState: 'stop',
       breakPoints: [],
       lastBreakPointIndex: -1,
-      freshMs: 20
+      freshMs: 30
     }
   },
   mounted() {
@@ -200,6 +200,7 @@ export default {
     freshTime(interval) {
       let seconds = interval / 1000;
       this.nowTime += seconds / this.timeScale;
+      eventHub.$emit('updateTime', this.nowTime);
     },
     setTimerState(state) {
       if (this.timerState != state) {
@@ -242,6 +243,7 @@ export default {
       this.stopTimer();
       this.nowTime = 0;
       this.lastBreakPointIndex = -1;
+      eventHub.$emit('resetNet');
       this.scrollTo(0, 0.2);
     },
     handleAutoScroll() {
@@ -277,14 +279,10 @@ export default {
       if (this.breakMode === 'single-step') {
         this.hoveredOrder = breakPoint.order;
         this.lastBreakPointIndex = breakPointIndex;
-        if (breakPointIndex === this.breakPoints.length - 1) {
-          this.stopTimer()
-        } else {
-          this.pauseTimer();
-        }
+        this.pauseTimer();
       } else if (this.breakMode == 'until-end') {
         this.nowTime = breakPoint.time;
-        this.stopTimer();
+        this.pauseTimer();
       }
     },
     setBreakPoints(mode) {
@@ -333,7 +331,7 @@ export default {
           time: 0
         });
         this.breakPoints = [endBreakPoint];
-        console.log(this.breakPoints);
+        // console.log(this.breakPoints);
       } else {
         // infinate
         this.breakPoints = [];
