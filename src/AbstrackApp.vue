@@ -1,6 +1,6 @@
 <template>
 <div class="abstract-app">
-  <App :lines="lines"/>
+  <App :lines="lines" />
 </div>
 </template>
 
@@ -27,10 +27,10 @@ import {
 
 
 let transStatesP = {
-  'normal': 0.5,
-  'lose': 0.2,
-  'deffered': 0.2,
-  'corrupt': 0.1
+  'normal': 0.9,
+  'lose': 0.05,
+  'deffered': 0.05,
+  'corrupt': 0
 }
 
 const SingleState = {
@@ -96,9 +96,9 @@ export default {
       network = new Network(
         transStatesP,
         0.08,
-        0.02,
+        0.005,
         function(newSegment) { // newTransCallBack
-          console.log('seg', newSegment);
+          // console.log('seg', newSegment);
           vm.lines.push(segment2Line(newSegment, lport, rport));
         }
       );
@@ -107,16 +107,34 @@ export default {
           eventHub.$emit('sendWindowChange', sendWindow, baseSeqNum, nextSeqNum);
         },
         receiveWindowChange: function(receiveWindow, nextAckNum) {
-          eventHub.$emit('receiveWindowChange', receiveWindow, nextAckNum);
         },
-        sendMessage: function(message) {},
-        receiveMessage: function(message) {},
-        timeout: function(startTime, timeoutTime) {},
+        sendMessage: function(message) {
+          console.log('L send', message);
+        },
+        receiveMessage: function(message) {
+          console.log('L receive', message);
+        },
+        timeout: function(startTime, timeoutTime) {
+          console.log('L timeout');
+        },
         startTimer: function(startTime) {},
         stopTimer: function(stopTime) {}
       });
-      rightSocket = new TCP(rport, network, [], function(message) {
-        console.log('right receive message', message);
+      rightSocket = new TCP(rport, network, [], {
+        sendWindowChange: function(sendWindow, baseSeqNum, nextSeqNum) {},
+        receiveWindowChange: function(receiveWindow, nextAckNum) {
+          // console.log('receiveWindowChange callback');
+          eventHub.$emit('receiveWindowChange', receiveWindow, nextAckNum);
+        },
+        sendMessage: function(message) {
+          console.log('R send', message)
+        },
+        receiveMessage: function(message) {
+          console.log('R receive', message);
+        },
+        timeout: function(startTime, timeoutTime) {},
+        startTimer: function(startTime) {},
+        stopTimer: function(stopTime) {}
       });
       leftSocket.connect(rport);
       rightSocket.connect(lport);
@@ -129,7 +147,11 @@ export default {
       }
     },
     backTime(time) {
-      let oldsegments = network.segments;
+      // console.log('backtime', time);
+      let oldsegments = _.filter(network.segments,seg => time >= seg.begTime).map(function(seg){
+        seg.hasSent = false;
+        return seg;
+      })
       network = new Network(
         network.transStatesP,
         network.RTT,
@@ -138,13 +160,15 @@ export default {
         oldsegments.length
       );
       network.segments = oldsegments;
-      let leftDatas = leftSocket.dataBuffer;
-      let rightDatas = rightSocket.dataBuffer;
-      leftSocket = new TCP(lport, network, [], leftSocket.receiveCallback);
-      rightSocket = new TCP(rport, network, [], rightSocket.receiveCallback);
+      let leftSendWindow = leftSocket.sendWindow;
+      let rightSendWindow = rightSocket.sendWindow;
+      leftSocket = new TCP(leftSocket.port, network, [], leftSocket.callbacks);
+      rightSocket = new TCP(rightSocket.port, network, [], rightSocket.callbacks);
 
-      leftSocket.connect(rport);
-      rightSocket.connect(lport);
+      leftSocket.connect(rightSocket.port);
+      rightSocket.connect(leftSocket.port);
+
+      console.log('leftSendWindow', leftSendWindow);
 
       let nowTime = 0;
       this.updateTime(nowTime);
@@ -152,10 +176,13 @@ export default {
         nowTime += 30 / 100000;
         nowTime = Math.min(nowTime, time);
         this.updateTime(nowTime);
-        _.remove(leftDatas, d => nowTime >= d.addTime).forEach(d => leftSocket.send(d.rawData));
-        _.remove(rightDatas, d => nowTime >= d.addTime).forEach(d => rightSocket.send(d.rawData));
+        _.remove(leftSendWindow, m => nowTime >= m.data.addTime).forEach(m => leftSocket.send(m.data.rawData));
+        _.remove(rightSendWindow, m => nowTime >= m.data.addTime).forEach(m => rightSocket.send(m.data.rawData));
       } while (nowTime < time);
       network.ignoreCnt = 0;
+      this.lines = _.filter(this.lines, line => time >= line.begTime);
+      eventHub.$emit('sendWindowChange', leftSocket.sendWindow, leftSocket.baseSeqNum, leftSocket.nextSeqNum);
+      eventHub.$emit('receiveWindowChange', rightSocket.receiveWindow, rightSocket.nextAckNum);
     }
   }
 }

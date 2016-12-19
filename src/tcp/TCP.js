@@ -11,13 +11,21 @@ class TimeData {
   }
 }
 
+class TimeFunction {
+  constructor(triggerTime, callback) {
+    this.time = triggerTime;
+    this.callback = callback;
+  }
+}
+
 export class FakeTCP {
   constructor(port, network, datas, callbacks) {
     this.init(port, network, datas, callbacks);
   }
 
   init(port, network, datas, callbacks) {
-    this.innerInterval = 0.04;
+    this.cacheDisorderedMessage = false;
+    this.innerInterval = 0.01;
     this.timeoutInterval = network.RTT + 2 * network.bias;
     this.port = port;
     this.toPort = undefined;
@@ -26,46 +34,72 @@ export class FakeTCP {
       receiveWindowChange: function(receiveWindow, nextAckNum) {},
       sendMessage: function(message) {},
       receiveMessage: function(message) {},
-      timeout:function(startTime,timeoutTime){},
-      startTimer:function(startTime){},
-      stopTimer:function(stopTime){}
+      timeout: function(startTime, timeoutTime) {},
+      startTimer: function(startTime) {},
+      stopTimer: function(stopTime) {}
     }
+
+    this.waits = []; // TimeFunction
+
     this.callbacks = _.mapValues(this.callbacks, (f, key) => _.isFunction(callbacks[key]) ? callbacks[key] : f);
     this.network = network;
     network.accept(this);
 
     this.startTime = -1;
     this.nowTime = 0;
-    this.dataBuffer = _.isArray(datas) ?
-      _.map(datas, data => new TimeData(this.nowTime, data)) : [];
-    this.nextDataNum = 0;
+    // this.dataBuffer = _.isArray(datas) ?
+    //   _.map(datas, data => new TimeData(this.nowTime, data)) : [];
 
-    this.receive_window_size = 1000;
-    this.receiveWindow = _.map(_.range(this.receive_window_size), () => undefined);
+    this.receiveWindow = [];
 
     this.nextAckNum = 0;
     this.nextSeqNum = 0;
     this.baseSeqNum = 0;
 
-    this.send_window_size = 1000;
-    this.sendWindow = _.map(_.range(this.send_window_size), () => undefined);
+    this.slideSize = 10;
+    this.sendWindow = [];
+
+    for (let i = 0; i < datas.length; ++i) {
+      this.sendWindow.push(this.messageFactory(
+        i, -1,
+        new TimeData(this.nowTime, datas[i])));
+    }
+
     this.send_next = 0;
+
   }
 
   send(data) {
-    this.dataBuffer.push(new TimeData(this.nowTime, data));
+    this.sendWindow.push(this.messageFactory(
+      this.sendWindow.length, -1,
+      new TimeData(this.nowTime, data)));
+    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
     this.sendNextAllData();
   }
 
+  wait(func, delay) {
+    this.waits.push(new TimeFunction(this.nowTime + delay, func));
+  }
 
+  triggerWaits() {
+    while (this.waits.length != 0) {
+      let waitfuntion = this.waits[0];
+      if (this.nowTime >= waitfuntion.time) {
+        this.waits.shift();
+        waitfuntion.callback();
+      } else {
+        break;
+      }
+    }
+  }
 
-  messageFactory(seqNum, ackNum, data) {
+  messageFactory(seqNum, ackNum, timedata) {
     let message = new Message();
     message.srcPort = this.port;
     message.distPort = this.toPort;
     message.seqNum = seqNum;
     message.ackNum = ackNum;
-    message.data = data;
+    message.data = timedata;
     return message;
   }
 
@@ -77,10 +111,9 @@ export class FakeTCP {
   }
 
   update() {
-    if (this.startTime != -1 &&
-      this.nowTime - this.startTime > this.timeoutInterval) {
-      this.timeout();
-    }
+    this.triggerTimeout();
+    this.triggerWaits();
+    this.sendNextAllData();
   }
 
   connect(port) {
@@ -107,36 +140,46 @@ export class FakeTCP {
   }
 
   sendNextData() {
-    if (this.nextDataNum >= this.dataBuffer.length) {
-      // buffer里没数据发送了
+    if (this.nextSeqNum >= this.sendWindow.length) {
+      // sendWindow 内没数据了
       return false;
     }
 
-    if (this.nextSeqNum < this.baseSeqNum + this.send_window_size) {
+    if (this.nextSeqNum < this.baseSeqNum + this.slideSize) {
       if (this.baseSeqNum === this.nextSeqNum) { // 第一次发送
         this.startTimer();
       }
-      let data = this.dataBuffer[this.nextDataNum].rawData;
-      let message = this.messageFactory(this.nextSeqNum, this.nextAckNum, data);
-      // console.log('nextdata message',message);
-      // console.log(this.port + '  sendData ' + '  seqNum=' + message.seqNum + '  ackNum=' + message.ackNum);
-      this.sendWindow[this.nextSeqNum] = message;
-      this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
+      // let data = this.dataBuffer[this.nextDataNum].rawData;
+      // let message = this.messageFactory(this.nextSeqNum, this.nextAckNum, data);
+      // // console.log('nextdata message',message);
+      // // console.log(this.port + '  sendData ' + '  seqNum=' + message.seqNum + '  ackNum=' + message.ackNum);
+      // this.sendWindow[this.nextSeqNum] = message;
+      let message = this.sendWindow[this.nextSeqNum];
+      message.ackNum = this.nextAckNum;
       this.udt_send(message);
       this.nextSeqNum += 1;
-      this.nextDataNum += 1;
+      this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
       return true;
     } else {
       return false; // 窗口满了
     }
   }
-
+  triggerTimeout() {
+    if (this.startTime != -1 &&
+      this.nowTime - this.startTime > this.timeoutInterval) {
+      this.timeout();
+    }
+  }
   timeout() {
     // console.log(this.port, 'timeout');
-    this.callbacks.timeout(this.startTime,this.nowTime);
+    this.callbacks.timeout(this.startTime, this.nowTime);
     this.startTimer();
-    for (let i = this.baseSeqNum; i < this.nextSeqNum; ++i) {
-      this.udt_send(this.sendWindow[i]);
+    let that = this;
+    for (let i = this.baseSeqNum, j = 0; i < this.nextSeqNum; ++i, ++j) {
+      let message = this.sendWindow[i];
+      this.wait(function() {
+        that.udt_send(message);
+      }, this.innerInterval * j);
     }
   }
 
@@ -155,7 +198,7 @@ export class FakeTCP {
 
   slideSendWindowTo(base) {
     this.baseSeqNum = base;
-    this.callbacks.sendWindowChange(this.sendWindow,this.baseSeqNum,this.nextSeqNum);
+    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
   }
 
   receive(message) {
@@ -164,28 +207,27 @@ export class FakeTCP {
     if (this.isCorrupt(message)) {
       this.sendAck();
     } else {
-      this.slideSendWindowTo(message.ackNum);
+      if (message.ackNum > this.baseSeqNum) {
+        this.slideSendWindowTo(message.ackNum);
+      }
       if (this.baseSeqNum === this.nextSeqNum) {
         this.stopTimer();
-        // console.log('stopTimer', this.startTime);
       } else {
-        // console.log('startTimer');
         this.startTimer();
       }
       if (message.data && message.data != '') { // 非 pure Ack 才需要回应
         if (message.seqNum === this.nextAckNum) {
-          // console.log(this.port,'valid message');
-          this.receiveWindow[this.nextAckNum] = message;
-          this.callbacks.receiveWindowChange(this.receiveWindow,this.nextAckNum);
+          this.receiveWindow.push(message);
           this.nextAckNum += 1;
           this.sendAck();
-          this.sendNextAllData();
+          this.callbacks.receiveWindowChange(this.receiveWindow, this.nextAckNum);
+          console.log(this.port, 'valid message', message.seqNum, this.nextAckNum);
         } else {
-          // console.log(this.port,'notvalid message');
+          console.log(this.port, 'notvalid message', message.seqNum, this.nextAckNum);
           this.sendAck();
         }
       } else {
-        // console.log(this.port,'pure Ack message');
+        console.log(this.port, 'pure Ack message');
       }
 
     }

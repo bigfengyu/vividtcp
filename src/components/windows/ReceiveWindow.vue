@@ -5,26 +5,38 @@
 import Grids from './Grids.vue'
 export default {
   created() {
-    // let colors = ['green', 'yellow', 'blue', 'grey'];
-    // for (let i = 0; i < 200; ++i) {
-    //   this.grids.push({
-    //     num: i + 1,
-    //     color: colors[i % 4]
-    //   });
-    // }
-    eventHub.$on('receiveWindowChange',this.receiveWindowChangeHandler);
+    eventHub.$on('receiveWindowChange', this.receiveWindowChangeHandler);
+    this.receiveWindowChangeHandler([],0);
   },
-  beforeDestroy(){
-    eventHub.$off('receiveWindowChange',this.receiveWindowChangeHandler);
+  beforeDestroy() {
+    eventHub.$off('receiveWindowChange', this.receiveWindowChangeHandler);
   },
   data() {
     return {
       grids: []
     }
   },
-  methods:{
-    receiveWindowChangeHandler(receiveWindow,nextAckNum){
-      console.log('receiveWindowChangeHandler');
+  methods: {
+    receiveWindowChangeHandler(receiveWindow, nextAckNum) {
+      let minGridsCnt = 200;
+      let grids = [];
+      for (let i = 0; i < receiveWindow.length; ++i) {
+        grids.push({
+          num: receiveWindow[i].seqNum,
+          color: 'green'
+        });
+      }
+      grids.push({
+        num: nextAckNum,
+        color: 'blue'
+      });
+      for (let i = grids.length; i < minGridsCnt; ++i) {
+        grids.push({
+          num: '-',
+          color: 'grey'
+        });
+      }
+      this.grids = grids;
     }
   },
   components: {
