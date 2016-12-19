@@ -32,7 +32,7 @@ export default {
       });
       for (let i = grids.length; i < minGridsCnt; ++i) {
         grids.push({
-          num: '-',
+          num: '',
           color: 'grey'
         });
       }

@@ -4,12 +4,6 @@ import {
 
 import _ from 'lodash';
 
-class TimeData {
-  constructor(addTime, data) {
-    this.addTime = addTime;
-    this.rawData = data;
-  }
-}
 
 class TimeFunction {
   constructor(triggerTime, callback) {
@@ -48,7 +42,7 @@ export class FakeTCP {
     this.startTime = -1;
     this.nowTime = 0;
     // this.dataBuffer = _.isArray(datas) ?
-    //   _.map(datas, data => new TimeData(this.nowTime, data)) : [];
+    //   _.map(datas, data => new FakeData(this.nowTime, data)) : [];
 
     this.receiveWindow = [];
 
@@ -62,7 +56,7 @@ export class FakeTCP {
     for (let i = 0; i < datas.length; ++i) {
       this.sendWindow.push(this.messageFactory(
         i, -1,
-        new TimeData(this.nowTime, datas[i])));
+        datas[i]));
     }
 
     this.send_next = 0;
@@ -72,34 +66,38 @@ export class FakeTCP {
   send(data) {
     this.sendWindow.push(this.messageFactory(
       this.sendWindow.length, -1,
-      new TimeData(this.nowTime, data)));
-    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
-    this.sendNextAllData();
+      data));
+    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum, this.slideSize);
+    // this.sendNextAllData();
   }
 
   wait(func, delay) {
+    console.log('this.nowTime + delay', this.nowTime + delay);
     this.waits.push(new TimeFunction(this.nowTime + delay, func));
   }
 
   triggerWaits() {
+    let triggerCnt = 0;
     while (this.waits.length != 0) {
       let waitfuntion = this.waits[0];
       if (this.nowTime >= waitfuntion.time) {
         this.waits.shift();
+        triggerCnt += 1;
         waitfuntion.callback();
       } else {
         break;
       }
     }
+    return triggerCnt;
   }
 
-  messageFactory(seqNum, ackNum, timedata) {
+  messageFactory(seqNum, ackNum, fakeData) {
     let message = new Message();
     message.srcPort = this.port;
     message.distPort = this.toPort;
     message.seqNum = seqNum;
     message.ackNum = ackNum;
-    message.data = timedata;
+    message.data = fakeData;
     return message;
   }
 
@@ -108,12 +106,18 @@ export class FakeTCP {
     // console.log(this.port,'***',message);
     this.callbacks.sendMessage(message);
     this.network.send(message);
+    if (message.data) {
+      message.data.transState = 'random';
+    }
   }
 
   update() {
     this.triggerTimeout();
-    this.triggerWaits();
-    this.sendNextAllData();
+    if (this.waits.length != 0) {
+      this.triggerWaits();
+    } else {
+      this.sendNextAllData();
+    }
   }
 
   connect(port) {
@@ -132,11 +136,14 @@ export class FakeTCP {
   }
 
   sendNextAllData() {
-    let i = 0;
-    while (this.sendNextData()) {
-      i += 1;
+    let that = this;
+
+    function waitSend() {
+      if (that.sendNextData()) {
+        that.wait(waitSend, that.innerInterval);
+      }
     }
-    return i;
+    waitSend();
   }
 
   sendNextData() {
@@ -149,16 +156,11 @@ export class FakeTCP {
       if (this.baseSeqNum === this.nextSeqNum) { // 第一次发送
         this.startTimer();
       }
-      // let data = this.dataBuffer[this.nextDataNum].rawData;
-      // let message = this.messageFactory(this.nextSeqNum, this.nextAckNum, data);
-      // // console.log('nextdata message',message);
-      // // console.log(this.port + '  sendData ' + '  seqNum=' + message.seqNum + '  ackNum=' + message.ackNum);
-      // this.sendWindow[this.nextSeqNum] = message;
       let message = this.sendWindow[this.nextSeqNum];
       message.ackNum = this.nextAckNum;
       this.udt_send(message);
       this.nextSeqNum += 1;
-      this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
+      this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum, this.slideSize);
       return true;
     } else {
       return false; // 窗口满了
@@ -183,6 +185,8 @@ export class FakeTCP {
     }
   }
 
+
+
   isCorrupt(message) {
     return message.checksum === 'unmatch';
   }
@@ -198,7 +202,7 @@ export class FakeTCP {
 
   slideSendWindowTo(base) {
     this.baseSeqNum = base;
-    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum);
+    this.callbacks.sendWindowChange(this.sendWindow, this.baseSeqNum, this.nextSeqNum, this.slideSize);
   }
 
   receive(message) {

@@ -164,7 +164,8 @@ export default {
         }
         let time = lineData.begTime + (lineData.endTime - lineData.begTime) * percentage;
         this.nowTime = time;
-        eventHub.$emit('makeLineLose', lineData.order, time);
+        eventHub.$emit('setCutMode',false);
+        eventHub.$emit('makeSegmentLose', lineData.order, time);
       }
     },
     handleResize(event) {

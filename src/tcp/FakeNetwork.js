@@ -137,7 +137,7 @@ export class FakeNetwork {
     let that = this;
     // console.log('network-1',message);
     // console.log('ignoreCnt',this.ignoreCnt);
-    if(this.ignoreCnt > 0){
+    if (this.ignoreCnt > 0) {
       this.ignoreCnt -= 1;
       return;
     }
@@ -155,7 +155,11 @@ export class FakeNetwork {
     // console.log('state:',state);
 
     // console.log('FK state', state)
-    let state = weightedRand(this.transStatesP);
+    let state =
+      message.data && message.data.transState != 'random' ?
+      message.data.transState :
+      weightedRand(this.transStatesP);
+    // console.log('&&&&', message, 'state', state);
     let segment = makers[state](message, this.segments.length);
     this.newTransCallBack(segment);
 

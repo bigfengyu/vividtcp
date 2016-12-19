@@ -13,7 +13,7 @@ export default {
     //   });
     // }
     eventHub.$on('sendWindowChange', this.sendWindowChangeHandler);
-    this.sendWindowChangeHandler([], 0, 0);
+    this.sendWindowChangeHandler([], 0, 0, 0);
   },
   beforeDestroy() {
     eventHub.$off('sendWindowChange', this.sendWindowChangeHandler);
@@ -24,7 +24,9 @@ export default {
     }
   },
   methods: {
-    sendWindowChangeHandler(sendWindow, baseSeqNum, nextSeqNum) {
+    sendWindowChangeHandler(sendWindow, baseSeqNum, nextSeqNum, slideSize) {
+      console.log('sendWindow', sendWindow);
+      console.log('slideSize', slideSize)
       let minGridsCnt = 200;
       let grids = [];
       for (let i = 0; i < sendWindow.length; ++i) {
@@ -36,18 +38,26 @@ export default {
           grid.color = 'green';
         } else if (message.seqNum >= baseSeqNum && message.seqNum < nextSeqNum) {
           grid.color = 'yellow'; // 窗口内，已发送
+        } else if (message.seqNum === nextSeqNum) {
+          grid.color = 'blue';
+        } else if (message.seqNum > nextSeqNum && message.seqNum < baseSeqNum + slideSize) {
+          grid.color = 'canary';
         } else {
           grid.color = 'grey';
         }
         grids.push(grid);
       }
-      grids.push({
-        num: nextSeqNum,
-        color: 'blue'
-      });
+      if (sendWindow.length != 0 &&
+        sendWindow[sendWindow.length - 1].seqNum < nextSeqNum ||
+        sendWindow.length === 0) {
+        grids.push({
+          num: nextSeqNum,
+          color: 'blue'
+        });
+      }
       for (let i = grids.length; i < minGridsCnt; ++i) {
         grids.push({
-          num: '-',
+          num: '',
           color: 'grey'
         });
       }

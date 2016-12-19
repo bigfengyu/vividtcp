@@ -56,8 +56,22 @@
   /* IE6-9 */
 }
 
+.canary {
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e5e696+0,d1d360+100;Wax+3D */
+  background: #e5e696;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #e5e696 0%, #d1d360 100%);
+  /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #e5e696 0%, #d1d360 100%);
+  /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #e5e696 0%, #d1d360 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#e5e696', endColorstr='#d1d360', GradientType=0);
+  /* IE6-9 */
+}
+
 .blue {
-  /*未发送，在窗口内*/
+  /*等待的下一个*/
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e0f3fa+0,d8f0fc+50,b8e2f6+51,b6dffd+100;Shape+2+Style */
   background: #e0f3fa;
   /* Old browsers */
@@ -72,7 +86,7 @@
 }
 
 .grey {
-  /*未发送，在窗口外*/
+  /*未定义的*/
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#fcfff4+0,dfe5d7+40,b3bead+100;Wax+3D+%233 */
   background: #fcfff4;
   /* Old browsers */

@@ -19,6 +19,7 @@
   padding: 0 20px;
 }
 
+
 /*.message-window-tab .receive-window-col {
   position: relative;
   left: 20px;
@@ -27,7 +28,8 @@
 .message-window-wrapper {
   min-height: 119px;
   max-height: 119px;
-  overflow-y: auto;;
+  overflow-y: auto;
+  ;
   /*border: 1px solid #777;*/
 }
 
@@ -128,12 +130,12 @@
 
     <div class="top-panel">
       <mu-tabs :value="activeTab" @change="handleTabChange">
-        <mu-tab value="features" title="功能" />
         <mu-tab value="show" title="展示" />
+        <mu-tab value="message-window" title="窗口" />
       </mu-tabs>
 
-      <div v-if="activeTab === 'show'" class="tab show-tab clearfix">
-        <div v-if="onShowTab === 'icons'" class="icons-tab">
+      <div v-show="activeTab === 'show'" class="tab show-tab clearfix">
+        <div class="icons-tab">
           <mu-row gutter>
             <mu-col class="icon-col" desktop="50" tablet="50" width="50" style="padding-top:20px;">
               <img class="client-icon" height="86" src="../assets/server.png" />
@@ -146,25 +148,24 @@
           </mu-row>
           <mu-flat-button label="收起" @click="handleTabChange('hide')" class="fold-button" primary/>
         </div>
-        <div v-if="onShowTab === 'message-window'" class="message-window-tab">
+      </div>
 
-            <mu-row class="message-window-row" gutter>
-              <mu-col class="send-window-col" desktop="50" tablet="50" width="50">
-                <h2 class="message-window-text">发送方发送窗口</h2>
-                <div class="message-window-wrapper">
-                  <send-window></send-window>
-                </div>
-              </mu-col>
-              <mu-col class="receive-window-col" desktop="50" tablet="50" width="50">
-                <h2 class="message-window-text">接收方接收窗口</h2>
-                <div class="message-window-wrapper">
-                  <receive-window></receive-window>
-                </div>
-              </mu-col>
-            </mu-row>
-
-          <mu-flat-button label="收起" @click="handleTabChange('hide')" class="fold-button" primary/>
-        </div>
+      <div v-show="activeTab === 'message-window'" class="tab message-window-tab clearfix">
+        <mu-row class="message-window-row" gutter>
+          <mu-col class="send-window-col" desktop="50" tablet="50" width="50">
+            <h2 class="message-window-text">发送方发送窗口</h2>
+            <div class="message-window-wrapper">
+              <send-window></send-window>
+            </div>
+          </mu-col>
+          <mu-col class="receive-window-col" desktop="50" tablet="50" width="50">
+            <h2 class="message-window-text">接收方接收窗口</h2>
+            <div class="message-window-wrapper">
+              <receive-window></receive-window>
+            </div>
+          </mu-col>
+        </mu-row>
+        <mu-flat-button label="收起" @click="handleTabChange('hide')" class="fold-button" primary/>
       </div>
 
       <mu-divider/>
@@ -175,8 +176,9 @@
     <div class="controlbar clearfix">
       <div class="btns controlbar-left">
         <mu-raised-button :label="toggleBtnText" @click="toggle" class="btn" primary/>
+        <mu-raised-button label="发送报文" @click="sendMessage('left')" class="btn" primary/>
         <mu-raised-button label="重置" @click="reset" class="btn" primary/>
-        <mu-raised-button label="发报(左)" @click="sendMessage('left')" class="btn" primary/>
+
         <!-- <mu-raised-button label="发报(右)" @click="sendMessage('right')" class="btn" primary/> -->
       </div>
       <div style="float:right;" class="controlbar-right clearfix">
@@ -219,21 +221,20 @@ export default {
     SendWindow,
     ReceiveWindow
   },
-  props:{
-    lines:{
-      default(){
+  props: {
+    lines: {
+      default () {
         return [];
       }
     }
   },
   data() {
     return {
-      msgSegIndex: 0,
       activeTab: 'show',
-      onShowTab: 'message-window',
-      // lines: [],
       cutMode: false,
       timerState: 'stop',
+      timeScale: 100,
+      secInterScale: 500,
       speedSlider: { // timeScale = 1000/value
         min: 5,
         max: 30,
@@ -250,13 +251,6 @@ export default {
     }
   },
   computed: {
-    onShowTab() {
-      if (this.timerState === 'stop') {
-        return 'icons';
-      } else {
-        return 'message-window';
-      }
-    },
     toggleBtnText() {
       return {
         'run': '暂停',
@@ -274,6 +268,7 @@ export default {
   created() {
     eventHub.$on('timerStateChange', this.handleTimerStateChange);
     eventHub.$on('makeLineLose', this.makeLineLose);
+    eventHub.$on('setCutMode', this.setCutMode);
   },
   mounted() {
     // this.load();
@@ -283,10 +278,14 @@ export default {
   beforeDestroy() {
     eventHub.$off('timerStateChange', this.handleTimerStateChange);
     eventHub.$off('makeLineLose', this.makeLineLose);
+    eventHub.$off('setCutMode', this.setCutMode);
   },
   methods: {
     toggleCutMode() {
       this.cutMode = !this.cutMode;
+    },
+    setCutMode(mode) {
+      this.cutMode = mode;
     },
     handleBreakModeChange(val) {
       this.breakMode = val;
@@ -307,39 +306,13 @@ export default {
     },
     handleTimerStateChange(state) {
       this.timerState = state;
-    },
-    makeLineLose(lineOrder, loseTime) {
-      this.lines = _map(this.lines, function(l) {
-        if (l.order === lineOrder) {
-          l.loseTime = loseTime;
-          return l;
+      if (this.activeTab != 'hide') {
+        if (state === 'stop') {
+          this.activeTab = 'show';
         } else {
-          return l;
+          this.activeTab = 'message-window';
         }
-      });
-    },
-    load() {
-      function populate() {
-        let lineNum = 20;
-        let map = ['lr', 'rl'];
-        let lines = [];
-        for (let order = 1; order <= lineNum; ++order) {
-          let begTime = (order - 1) * 0.02;
-          let endTime = begTime + _random(0.010, 0.090);
-          let loseTime = _random(0, 1) === 1 ? (endTime + begTime) / 2 : -1;
-          // let loseTime = -1;
-          let line = {
-            order: order,
-            begTime: begTime, // second
-            endTime: endTime, // second
-            loseTime: loseTime,
-            direct: map[(order - 1) % 2],
-          };
-          lines.push(line);
-        }
-        return lines;
       }
-      this.lines = populate();
     },
     toggle() {
       if (this.timerState === 'run') {
@@ -349,17 +322,13 @@ export default {
       }
     },
     reset() {
-      // this.load();
       eventHub.$emit('TL-resetTimer');
     },
-    sendMessage(side){
-      eventHub.$emit('sendMessage',side);
+    sendMessage(side) {
+      eventHub.$emit('sendMessage', side);
     }
   },
   watch: {
-    onShowTab() {
-      this.handleTopPanelHeightChange();
-    },
     activeTab() {
       this.handleTopPanelHeightChange();
     }
