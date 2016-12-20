@@ -1,6 +1,6 @@
-# tcpip
+# vividtcp
 
-> tcp/ip illustrator
+> tcp/ip dymanically illustrator
 
 ## Build Setup
 
