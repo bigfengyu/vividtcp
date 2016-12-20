@@ -1,6 +1,6 @@
 # vividtcp
 
-> tcp/ip dymanically illustrator
+> a web application can show how tcp works based on Vue2.0 Edit
 
 ## Build Setup
 
